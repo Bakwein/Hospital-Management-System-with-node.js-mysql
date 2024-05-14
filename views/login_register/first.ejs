@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head') %>
+    <title><%= title %></title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .button-box {
+            text-align: center;
+            padding: 20px;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .button-box .btn {
+            width: 200px;
+            margin: 10px 0;
+        }
+        .welcome-message {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-4">
+                <div class="welcome-message">
+                    <h1>Sitemize Hoş Geldiniz</h1>
+                </div>
+                <div class="button-box">
+                    <a class="btn btn-primary" href="/doctor/login">Doctor Girişi</a>
+                    <a class="btn btn-primary" href="/user/login">User Girişi</a>
+                    <a class="btn btn-primary" href="/admin/login">Admin Girişi</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

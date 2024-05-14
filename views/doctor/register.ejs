@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head') %>
+    <title><%= title %></title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* body'nin min-height'ini 100vh olarak ayarladık */
+            background-color: #f0f0f0;
+            margin: 0; /* body'nin margin'ini sıfır olarak ayarladık */
+            padding: 0; /* body'nin padding'ini sıfır olarak ayarladık */
+        }
+        .login-box {
+            width: 400px; /* Form genişliğini artırdık */
+            padding: 20px;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px; /* En üst kısma boşluk ekledik */
+            margin-bottom: 20px; /* En alt kısma boşluk ekledik */
+        }
+        .login-box h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            font-weight: bold;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%; /* Form elemanlarının genişliğini ayarladık */
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .btn-login {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn-register {
+            text-align: center;
+            color: #007bff;
+            text-decoration: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="login-box">
+                    <h2><%= kutu_baslik %></h2>
+                    <form action="/user/login" method="POST">
+                        <div class="form-group">
+                            <label for="tcno">TC Kimlik No:</label>
+                            <input type="text" id="tcno" name="tcno" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="isim">İsim:</label>
+                            <input type="text" id="isim" name="isim" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="soyisim">Soyisim:</label>
+                            <input type="text" id="soyisim" name="soyisim" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="alan">Uzmanlık Alanı:</label>
+                            <input type="text" id="alan" name="soyisim" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="hastane">Çalıştığı Hastane:</label>
+                            <input type="text" id="hastane" name="hastane" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cinsiyet">Cinsiyet:</label>
+                            <select id="cinsiyet" name="cinsiyet" required>
+                                <option value="belirtilmemis">Belirtmek İstemiyorum</option>
+                                <option value="erkek">Erkek</option>
+                                <option value="kadın">Kadın</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Şifre:</label>
+                            <input type="password" id="password" name="password" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="repassword">Şifreyi Onayla:</label>
+                            <input type="password" id="repassword" name="repassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-login">Giriş</button>
+                    </form>
+                    <p class="btn-register"><a href="/doctor/login">Hesabınız var mı? Giriş Yapın</a></p>
+                    <p class="btn-register"><a href="/">En Başa Dön</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

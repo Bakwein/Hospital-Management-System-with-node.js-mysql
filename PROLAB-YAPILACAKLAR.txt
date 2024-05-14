@@ -1,0 +1,57 @@
+YAPILACAKLAR
+
+VERİ TABANI ER OLUŞTURMA! VERİ TABANI İLİŞKİSEL HALE GETİRİLMELİ NORMALİZASYONA UYULMALI
+hasta,doktor,yönetici,randevu,rapor class olamalı
+trigger ile tüm tabloları güncelleme????????
+sayfayı https yapma
+şifreleri hashleme
+
+Hastaların ve doktorların randevularını, laboratuvar
+sonuçlarını görebileceği, yükleyebileceği ve indirebileceği bir arayüz eklenmelidirBu
+arayüzde sonuçların tarihleri ve türleri gibi bilgileri de gösterecek şekilde düzenleyin.
+
+Arayüzde AJAX çağrıları kullanarak sayfa
+yenilenmeden dosya yükleme ve indirme işlemlerini gerçekleştirmelidir
+
+Bildirim Sistemi Kurulumu: Kullanıcılara yeni laboratuvar sonuçları yüklendiğinde
+veya sonuçlarında önemli bir güncelleme olduğunda bildirim gönderen bir sistem
+kurulmalıdır
+
+SORGULAR
+Bir doktor, tüm hastalarını görüntüleyebilmelidir. Her hastanın adı, soyadı,
+doğum tarihi, cinsiyeti, telefon numarası, adresi gibi temel bilgiler
+listelenmelidir.Bir doktor, belirli bir hastasına ait tıbbi rapor sonuçlarını
+görüntüleyebilmelidir. Hastanın adı ve soyadıyla birlikte raporların tarihi,
+içeriği, sonuçları gibi bilgiler sunulmalıdır.
+Bir hasta, tüm randevularını görüntüleyebilmelidir. Her randevunun tarihi,
+saati, doktoru gibi bilgiler listelenmelidir.Bir hasta, tüm tıbbi rapor sonuçlarını görüntüleyebilmelidir. Raporların tarihi,
+içeriği, sonuçları gibi bilgiler sunulmalıdır.
+
+
+
+
+HASTA GİRİŞİ
+
+
+DOKTOR GİRİŞİ
+
+
+YÖNETİCİ GİRİŞİ
+ALTTAKİ İŞLEMLERLE TÜM TABLOLAR GÜNCELLENMELİ!
+Hasta Ekleme/ Silme -> 
+2. Doktor Ekleme/ Silme: Aktif randevusu bulunan bir doktor
+silinemeyecektir.
+3. Randevu Alma/ İptal Etme:
+Tıbbi Rapor Ekleme: Bir hastanın tıbbi raporunu ekleyerek raporun veri tabanına doğru
+bir şekilde kaydedilip kaydedilmediğini gösterilmelidir.
+5. Hasta Bilgilerini Güncelleme:
+6. Doktor Bilgilerini Güncelleme
+7. Randevu Bilgilerini Güncelleme:
+8. Tıbbi Rapor Bilgilerini Güncelleme:
+
+NOT: İsterlerde belirtilen işlemler gerçekleştiğinde, arayüzde bir onay mesajı gösterilmeli ve
+veri tabanı değişiklikleri anlık olarak raporlanmalıdır
+
+
+
+BUGLAR
