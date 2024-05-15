@@ -5,13 +5,14 @@
     <title><%= title %></title>
     <style>
         body {
-            display: flex;
+            /* display: flex; */
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #f0f0f0;
+            background: linear-gradient(to right, #f0f0f0, #b5fcd8);
         }
         .login-box {
+            margin-top: 200px;
             width: 300px;
             padding: 20px;
             border: 2px solid #ccc;
@@ -45,19 +46,33 @@
             border-radius: 5px;
             cursor: pointer;
         }
+        .btn-login:hover {
+            background-color: #0055af;
+            color: #fff;
+        }
         .btn-register {
             text-align: center;
             color: #007bff;
             text-decoration: none;
             cursor: pointer;
-            margin-top: 10px;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
+    <nav class="navbar navbar-dark bg-primary navbar-expand-lg">
+        <div class="container">
+            <a href="/" class="navbar-brand">ANASAYFA</a>
+            <!-- <ul class="navbar-nav nav-right">
+                <li class="nav-item">
+                    <a href="" class="nav-link">ehehehe</a>
+                </li>
+            </ul> -->
+        </div>
+    </nav>
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-6">
+            <div class="col-md-3">
                 <div class="login-box">
                     <h2><%= kutu_baslik %></h2>
                     <form action="/user/login" method="POST">

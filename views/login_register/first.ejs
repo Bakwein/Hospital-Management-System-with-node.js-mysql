@@ -5,11 +5,11 @@
     <title><%= title %></title>
     <style>
         body {
-            display: flex;
+            /* display: flex; */
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #f0f0f0;
+            background: linear-gradient(to right, #f0f0f0, #b5fcd8);
         }
         .button-box {
             text-align: center;
@@ -24,24 +24,35 @@
             margin: 10px 0;
         }
         .welcome-message {
+            margin-top: 200px;
             text-align: center;
             margin-bottom: 20px;
-            font-size: 24px;
+            font-size: 40px;
             color: #333;
         }
     </style>
 </head>
 <body>
+
+    <nav class="navbar navbar-dark bg-primary navbar-expand-lg">
+        <div class="container">
+            <a href="/" class="navbar-brand">ANASAYFA</a>
+            <!-- <ul class="navbar-nav nav-right">
+                <li class="nav-item">
+                    <a href="" class="nav-link">ehehehe</a>
+                </li>
+            </ul> -->
+        </div>
+    </nav>
+
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-4">
-                <div class="welcome-message">
-                    <h1>Sitemize Hoş Geldiniz</h1>
-                </div>
+                <div class="welcome-message">eHastane Sistemi'ne Hoş Geldiniz</div>
                 <div class="button-box">
-                    <a class="btn btn-primary" href="/doctor/login">Doctor Girişi</a>
-                    <a class="btn btn-primary" href="/user/login">User Girişi</a>
                     <a class="btn btn-primary" href="/admin/login">Admin Girişi</a>
+                    <a class="btn btn-primary" href="/doctor/login">Doktor Girişi</a>
+                    <a class="btn btn-primary" href="/user/login">Kullanıcı Girişi</a>
                 </div>
             </div>
         </div>

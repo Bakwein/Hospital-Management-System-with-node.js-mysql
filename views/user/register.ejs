@@ -5,11 +5,11 @@
     <title><%= title %></title>
     <style>
         body {
-            display: flex;
+            /* display: flex; */
             justify-content: center;
             align-items: center;
             min-height: 100vh; /* body'nin min-height'ini 100vh olarak ayarladık */
-            background-color: #f0f0f0;
+            background: linear-gradient(to right, #f0f0f0, #b5fcd8);
             margin: 0; /* body'nin margin'ini sıfır olarak ayarladık */
             padding: 0; /* body'nin padding'ini sıfır olarak ayarladık */
         }
@@ -20,7 +20,7 @@
             border-radius: 10px;
             background-color: #fff;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin-top: 20px; /* En üst kısma boşluk ekledik */
+            margin-top: 40px; /* En üst kısma boşluk ekledik */
             margin-bottom: 20px; /* En alt kısma boşluk ekledik */
         }
         .login-box h2 {
@@ -51,6 +51,10 @@
             border-radius: 5px;
             cursor: pointer;
         }
+        .btn-login:hover {
+            background-color: #0055af;
+            color: #fff;
+        }
         .btn-register {
             text-align: center;
             color: #007bff;
@@ -63,7 +67,7 @@
         }
 
         #telefon-prefix {
-            width: 40px; /* +9 için ayrılan kutunun genişliği */
+            width: 53px; /* +9 için ayrılan kutunun genişliği */
             padding: 10px;
             border: 1px solid #ccc;
             border-top-left-radius: 5px;
@@ -83,12 +87,22 @@
     </style>
 </head>
 <body>
+    <nav class="navbar navbar-dark bg-primary navbar-expand-lg">
+        <div class="container">
+            <a href="/" class="navbar-brand">ANASAYFA</a>
+            <!-- <ul class="navbar-nav nav-right">
+                <li class="nav-item">
+                    <a href="" class="nav-link">ehehehe</a>
+                </li>
+            </ul> -->
+        </div>
+    </nav>
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-6">
+            <div class="col-md-3">
                 <div class="login-box">
                     <h2><%= kutu_baslik %></h2>
-                    <form action="/user/login" method="POST">
+                    <form action="/user/register" method="POST">
                         <div class="form-group">
                             <label for="tcno">TC Kimlik No:</label>
                             <input type="text" id="tcno" name="tcno" required>
@@ -108,22 +122,30 @@
                         <div class="form-group">
                             <label for="cinsiyet">Cinsiyet:</label>
                             <select id="cinsiyet" name="cinsiyet" required>
-                                <option value="belirtilmemis">Belirtmek İstemiyorum</option>
-                                <option value="erkek">Erkek</option>
-                                <option value="kadın">Kadın</option>
+                                <option value="0">Belirtmek İstemiyorum</option>
+                                <option value="1">Erkek</option>
+                                <option value="2">Kadın</option>
                             </select>
                         </div>
                         <div class="form-group">
                             <label for="telefon">Telefon Numarası:</label>
                             <div class="telefon-input">
-                                <input type="text" id="telefon-prefix" name="telefon-prefix" value="+9" readonly>
+                                <input type="text" id="telefon-prefix" name="telefon-prefix" value="+90" readonly>
                                 <input type="tel" id="telefon" name="telefon" required>
                             </div>
-                        </div>                        
-                        <div class="form-group">
-                            <label for="adres">Adres:</label>
-                            <textarea id="adres" name="adres" rows="4" required></textarea>
                         </div>
+                        <div class="form-group">
+                            <label for="sehir">Şehir:</label>
+                            <input type="text" id="sehir" name="sehir" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="ilce">İlçe:</label>
+                            <input type="text" id="ilce" name="ilce" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="mahalle">Mahalle:</label>
+                            <input type="text" id="mahalle" name="mahalle" required>
+                        </div>                        
                         <div class="form-group">
                             <label for="password">Şifre:</label>
                             <input type="password" id="password" name="password" required>
@@ -132,13 +154,19 @@
                             <label for="repassword">Şifreyi Onayla:</label>
                             <input type="password" id="repassword" name="repassword" required>
                         </div>
-                        <button type="submit" class="btn btn-login">Giriş</button>
+                        <button type="submit" class="btn btn-login">Kaydol</button>
                     </form>
                     <p class="btn-register"><a href="/user/login">Hesabınız var mı? Giriş Yapın</a></p>
                     <p class="btn-register"><a href="/">En Başa Dön</a></p>
                 </div>
             </div>
         </div>
+        <% if (message && message.length > 0) { %>
+                <div class="alert <%= alert_type %> row justify-content-center col-md-8" role="alert">
+                    <%= message %>
+                </div>
+            
+        <% } %>
     </div>
 </body>
 </html>
