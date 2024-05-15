@@ -91,6 +91,11 @@
                 </div>
             </div>
         </div>
+        <% if (message && message.length > 0) { %>
+            <div class="alert <%= alert_type %> row justify-content-center col-md-8" role="alert">
+                <%= message %>
+            </div>
+        <% } %>
     </div>
 </body>
 </html>

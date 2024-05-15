@@ -13,18 +13,27 @@ router.get("/login", function(req,res){
     res.render('user/login', {
         title: 'Kullanıcı Girişi',
         kutu_baslik: 'Kullanıcı Girişi',
-
+        message: '',
+        alert_type: '',
     });
 });
 
 
 router.post("/login", function(req,res){
+    try
+    {
+        const {tcno, password} = req.body;
+        //console.log(tcno);
+        //console.log(password);
+        
+        console.log(req.body);
+    }
+    catch(err)
+    {
+        console.log(err);
+    }
+    
 
-    const {tcno, password} = req.body;
-    //console.log(tcno);
-    //console.log(password);
-
-    //console.log(req.body);
 });
 
 
@@ -42,7 +51,7 @@ function sayiDisindaKarakterVarMi(str) {
 }
 
 function harfDisindaKarakterVarMi(str) {
-    return /[^a-zA-Z]/.test(str);
+    return /[^a-zA-ZçÇğĞıİöÖşŞüÜ]/.test(str);
 }
 
 function isValidDate(str)
@@ -133,6 +142,16 @@ router.post("/register", async function(req,res){
     {
         return res.render('user/register', {
             message: 'Doğum tarihi geçerli bir tarih değil',
+            kutu_baslik: 'Kullanıcı Kayıt',
+            title: 'Kullanıcı Kayıt',
+            alert_type: 'alert-danger',
+        });
+    }
+    //dogum tarihi bugünden büyük olamaz
+    else if(new Date(dogumTarihi) > new Date())
+    {
+        return res.render('user/register', {
+            message: 'Doğum tarihi bugünden büyük olamaz',
             kutu_baslik: 'Kullanıcı Kayıt',
             title: 'Kullanıcı Kayıt',
             alert_type: 'alert-danger',
@@ -271,7 +290,7 @@ router.post("/register", async function(req,res){
         });
     }
     let hashedPassword = await bcrypt.hash(password, 8);
-    console.log(hashedPassword);
+    //console.log(hashedPassword);
     //direkt gerceklesmez bunun icin await kullanmak zorundayi
     await db.execute("INSERT INTO hasta(tcno, isim, soyisim, dogumTarihi, cinsiyet, telefon, sehir, ilce, mahalle, sifre) VALUES(?,?,?,?,?,?,?,?,?,?)",[tcno, isim, soyisim, dogumTarihi, cinsiyet, telefon, sehir, ilce, mahalle, hashedPassword]);
 
