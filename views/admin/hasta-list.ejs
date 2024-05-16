@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head') %>
+    <title>Doktor Listesi</title>
+    
+</head>
+<body>
+    <%- include('../partials/admin/begining-header') %>
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col-md-12 mt-3">
+                <h3>Hasta Listesi</h3>
+            </div>
+            <div class="col-md-12 mt-3">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th style="width:50px">Id</th>
+                            <th>Tc Kimlik No</th>
+                            <th>İsim</th>
+                            <th>Soyisim</th>
+                            <th>Doğum Tarihi</th>
+                            <th>Cinsiyet</th>
+                            <th>Telefon</th>
+                            <th>Sehir</th>
+                            <th>İlçe</th>
+                            <th>Mahalle</th>
+                            <th style="width:130px"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% users.forEach(user => { %>
+                            <tr>
+                                <td>
+                                    <%= user.hastaid %>
+                                </td>
+                                <td>
+                                    <%= user.tcno %>
+                                </td>
+                                <td>
+                                    <%= user.isim %>
+                                </td>
+                                <td>
+                                    <%= user.soyisim %>
+                                </td>
+                                <td>
+                                    <%= user.dogumTarihi.getDate() %>-<%= (user.dogumTarihi.getMonth() + 1) %>-<%= user.dogumTarihi.getFullYear() %>
+                                    
+                                </td>
+                                <td>
+                                    <% if (user.cinsiyet === '0') { %>
+                                        Cinsiyet belirtilmemiş
+                                    <% } else if (user.cinsiyet === '1') { %>
+                                        Erkek
+                                    <% } else if (user.cinsiyet === '2') { %>
+                                        Kadın
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <%= user.telefon %>
+                                </td>
+                                <td>
+                                    <%= user.sehir %>
+                                </td>
+                                <td>
+                                    <%= user.ilce %>
+                                </td>
+                                <td>
+                                    <%= user.mahalle %>
+                                </td>
+                                <td>
+                                   
+                                    <a class="btn btn-sm btn-primary" href="">Edit</a>
+                                    <a class="btn btn-sm btn-danger" href="">Delete</a>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+    </div>
+
+    
+</body>
+</html>

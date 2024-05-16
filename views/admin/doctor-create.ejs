@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head') %>
+    <title>Hasta Ekleme</title>
+    
+</head>
+<body>
+     <%- include('../partials/admin/begining-header') %>
+     <div class="container mt-3">
+        <div class="row">
+            <div class="col-md-12 mt-3">
+                <h3>Doktor Ekleme</h3>
+            </div>
+            <div class="col-md-12 mt-3">
+                <form method="post"> 
+                    <div class="row mb-3">
+                        <label for="tcno" class="col-sm-2 col-from-label">Tc Kimlik No</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="tcno" name="tcno">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="isim" class="col-sm-2 col-from-label">İsim</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="isim" name="isim">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="soyisim" class="col-sm-2 col-from-label">Soyisim</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="soyisim" name="soyisim">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="uzmanlik_alani" class="col-sm-2 col-from-label">Uzmanlık Alanı</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="uzmanlik_alani" name="uzmanlik_alani">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="calistigi_hastane" class="col-sm-2 col-from-label">Çalıştığı Hastane</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="calistigi_hastane" name="calistigi_hastane">
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <label for="sifre" class="col-sm-2 col-from-label">Şifre</label>
+                        <div class="col-sm-8">
+                            <input type="password" class="form-control" id="sifre" name="sifre">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-8 offset-sm-2">
+                            <button type="submit" class="btn btn-primary">Kaydet</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <% if (message && message.length > 0) { %>
+            <div class="row justify-content-center" style="margin-left: 90px;">
+                <div class="col-md-8">
+                    <div class="alert <%= alert_type %> row justify-content-center" role="alert">
+                        <%= message %>
+                    </div>
+                </div>
+            </div>
+        <% } %>
+    </div>    
+</body>
+</html>

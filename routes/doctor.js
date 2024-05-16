@@ -79,7 +79,7 @@ router.post("/login", async function(req,res){
         else
         {
             const hashedInput = results3[0].password;
-            if( await bcrypt.compare(password, hashedInput))
+            if( await bcrypt.compare(password, hashedInput, ))
             {
                 const user_id = results3[0].iddoktor;
                 const token = jwt.sign({tcno: tcno, user_id: user_id, role: 'doctor'}, process.env.JWT_SECRET, {expiresIn: '1h'});
@@ -231,15 +231,6 @@ router.post("/register", async function(req,res){
                 alert_type: 'alert-danger',
             });
         }
-        else if(harfDisindaKarakterVarMi(alan))
-        {
-            return res.render('doctor/register', {
-                message: 'Uzmanlık alanı sadece harflerden oluşmalıdır',
-                kutu_baslik: 'Doktor Kayıt',
-                title: 'Doktor Kayıt',
-                alert_type: 'alert-danger',
-            });
-        }
         else if(alan.length < 2)
         {
             return res.render('doctor/register', {
@@ -253,15 +244,6 @@ router.post("/register", async function(req,res){
         {
             return res.render('doctor/register', {
                 message: 'Uzmanlık alanı en fazla 50 karakter olmalıdır',
-                kutu_baslik: 'Doktor Kayıt',
-                title: 'Doktor Kayıt',
-                alert_type: 'alert-danger',
-            });
-        }
-        else if(harfDisindaKarakterVarMi(hastane))
-        {
-            return res.render('doctor/register', {
-                message: 'Çalıştığı hastane sadece harflerden oluşmalıdır',
                 kutu_baslik: 'Doktor Kayıt',
                 title: 'Doktor Kayıt',
                 alert_type: 'alert-danger',

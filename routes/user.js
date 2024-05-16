@@ -343,15 +343,6 @@ router.post("/register", async function(req,res){
             alert_type: 'alert-danger',
         });
     }
-    else if(harfDisindaKarakterVarMi(mahalle))
-    {
-        return res.render('user/register', {
-            message: 'Mahalle sadece harflerden oluşmalıdır',
-            kutu_baslik: 'Kullanıcı Kayıt',
-            title: 'Kullanıcı Kayıt',
-            alert_type: 'alert-danger',
-        });
-    }
     else if(mahalle.length < 2)
     {
         return res.render('user/register', {
@@ -372,7 +363,7 @@ router.post("/register", async function(req,res){
     }
     
     //BURAYA PASSWORD KONTROLÜ EKLENECEK
-    const [results,] = await db.execute("SELECT tcno FROM hasta WHERE tcno = ?", [tcno]);  
+    const [results,] = await db.execute("SELECT tcno FROM hasta WHERE tcno = ?", [tcno]);
     //RESULTS 0 OLAYI??????????????????
     //console.log(results);
     //console.log(results[0]);
@@ -395,6 +386,7 @@ router.post("/register", async function(req,res){
         });
     }
     let hashedPassword = await bcrypt.hash(password, 8);
+
     //console.log(hashedPassword);
     //direkt gerceklesmez bunun icin await kullanmak zorundayi
     await db.execute("INSERT INTO hasta(tcno, isim, soyisim, dogumTarihi, cinsiyet, telefon, sehir, ilce, mahalle, sifre) VALUES(?,?,?,?,?,?,?,?,?,?)",[tcno, isim, soyisim, dogumTarihi, cinsiyet, telefon, sehir, ilce, mahalle, hashedPassword]);

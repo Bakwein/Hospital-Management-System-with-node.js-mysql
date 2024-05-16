@@ -1,10 +1,9 @@
 YAPILACAKLAR
 
 VERİ TABANI ER OLUŞTURMA! VERİ TABANI İLİŞKİSEL HALE GETİRİLMELİ NORMALİZASYONA UYULMALI
-hasta,doktor,yönetici,randevu,rapor class olamalı
+hasta,doktor,yönetici,randevu,rapor CLASS olamalı !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 trigger ile tüm tabloları güncelleme????????
 sayfayı https yapma
-şifreleri hashleme
 
 Hastaların ve doktorların randevularını, laboratuvar
 sonuçlarını görebileceği, yükleyebileceği ve indirebileceği bir arayüz eklenmelidirBu
