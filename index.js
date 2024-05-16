@@ -1,9 +1,11 @@
 const express = require('express');
 const app = express();
+const cookieParser = require('cookie-parser');
 
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+app.use(cookieParser());
 
 const path = require('path');
 const userRoutes = require('./routes/user');
@@ -12,7 +14,7 @@ const adminRoutes = require('./routes/admin');
 const login_register = require('./routes/login_register');
 
 app.use("/libs", express.static(path.join(__dirname, 'node_modules')));
-app.use('/static', express.static(path.join(__dirname, 'public')));
+app.use('/static', express.static(path.join(__dirname, 'assets')));
 
 app.use('/admin', adminRoutes);
 app.use('/doctor', doctorRoutes);

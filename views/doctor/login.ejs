@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <%- include('../partials/head') %>
-    <title><%= title %></title>
+    <title>Doktor Girişi</title>
     <style>
         body {
             /* display: flex; */
@@ -60,21 +60,12 @@
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-dark bg-primary navbar-expand-lg">
-        <div class="container">
-            <a href="/" class="navbar-brand">ANASAYFA</a>
-            <!-- <ul class="navbar-nav nav-right">
-                <li class="nav-item">
-                    <a href="" class="nav-link">ehehehe</a>
-                </li>
-            </ul> -->
-        </div>
-    </nav>
+    <%- include('../partials/begining-header') %>
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-3">
                 <div class="login-box">
-                    <h2><%= kutu_baslik %></h2>
+                    <h2>Doktor Girişi</h2>
                     <form action="/doctor/login" method="POST">
                         <div class="form-group">
                             <label for="tcno">TC Kimlik No:</label>
@@ -86,14 +77,18 @@
                         </div>
                         <button type="submit" class="btn btn-login">Giriş</button>
                     </form>
-                    <p class="btn-register"><a href="/doctor/register">Hesabınız yok mu? Kayıt olun</a></p>
+                    <p class="btn-register"><a href="/doctor/register_render">Hesabınız yok mu? Kayıt olun</a></p>
                     <p class="btn-register"><a href="/">Başa Dön</a></p>
                 </div>
             </div>
         </div>
         <% if (message && message.length > 0) { %>
-            <div class="alert <%= alert_type %> row justify-content-center col-md-8" role="alert">
-                <%= message %>
+            <div class="row justify-content-center" style="margin-left: 90px;">
+                <div class="col-md-8">
+                    <div class="alert <%= alert_type %> row justify-content-center" role="alert">
+                        <%= message %>
+                    </div>
+                </div>
             </div>
         <% } %>
     </div>

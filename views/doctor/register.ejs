@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <%- include('../partials/head') %>
-    <title><%= title %></title>
+    <title>Doktor Kayıt</title>
     <style>
         body {
             /* display: flex; */
@@ -66,21 +66,12 @@
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-dark bg-primary navbar-expand-lg">
-        <div class="container">
-            <a href="/" class="navbar-brand">ANASAYFA</a>
-            <!-- <ul class="navbar-nav nav-right">
-                <li class="nav-item">
-                    <a href="" class="nav-link">ehehehe</a>
-                </li>
-            </ul> -->
-        </div>
-    </nav>
+    <%- include('../partials/begining-header') %>
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-3">
                 <div class="login-box">
-                    <h2><%= kutu_baslik %></h2>
+                    <h2>Doktor Kayıt</h2>
                     <form action="/doctor/register" method="POST">
                         <div class="form-group">
                             <label for="tcno">TC Kimlik No:</label>
@@ -112,15 +103,19 @@
                         </div>
                         <button type="submit" class="btn btn-login">Kaydol</button>
                     </form>
-                    <p class="btn-register"><a href="/doctor/login">Hesabınız var mı? Giriş Yapın</a></p>
+                    <p class="btn-register"><a href="/doctor/login_render">Hesabınız var mı? Giriş Yapın</a></p>
                     <p class="btn-register"><a href="/">En Başa Dön</a></p>
                 </div>
             </div>
         </div>
         <% if (message && message.length > 0) { %>
-            <div class="alert <%= alert_type %> row justify-content-center col-md-8" role="alert">
-                <%= message %>
-            </div> 
+            <div class="row justify-content-center" style="margin-left: 90px;">
+                <div class="col-md-8">
+                    <div class="alert <%= alert_type %> row justify-content-center" role="alert">
+                        <%= message %>
+                    </div>
+                </div>
+            </div>
         <% } %>
     </div>
 </body>

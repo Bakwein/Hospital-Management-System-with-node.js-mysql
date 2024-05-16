@@ -33,26 +33,16 @@
     </style>
 </head>
 <body>
-
-    <nav class="navbar navbar-dark bg-primary navbar-expand-lg">
-        <div class="container">
-            <a href="/" class="navbar-brand">ANASAYFA</a>
-            <!-- <ul class="navbar-nav nav-right">
-                <li class="nav-item">
-                    <a href="" class="nav-link">ehehehe</a>
-                </li>
-            </ul> -->
-        </div>
-    </nav>
+    <%- include('../partials/begining-header') %>
 
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-4">
                 <div class="welcome-message">eHastane Sistemi'ne Hoş Geldiniz</div>
                 <div class="button-box">
-                    <a class="btn btn-primary" href="/admin/login">Admin Girişi</a>
-                    <a class="btn btn-primary" href="/doctor/login">Doktor Girişi</a>
-                    <a class="btn btn-primary" href="/user/login">Kullanıcı Girişi</a>
+                    <a class="btn btn-primary" href="/admin/login_render">Admin Girişi</a>
+                    <a class="btn btn-primary" href="/doctor/login_render">Doktor Girişi</a>
+                    <a class="btn btn-primary" href="/user/login_render">Kullanıcı Girişi</a>
                 </div>
             </div>
         </div>

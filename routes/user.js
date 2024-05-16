@@ -3,6 +3,8 @@ const router = express.Router();
 const db = require("../data/db");
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const dotenv = require('dotenv');
+dotenv.config();
 
 // Örnek route
 router.get('/', (req, res) => {
@@ -18,15 +20,91 @@ router.get("/login", function(req,res){
     });
 });
 
+router.get("/login_render", function(req,res){
+    if(req.cookies.token)
+    {
+        const token = req.cookies.token;
+        jwt.verify(token, process.env.JWT_SECRET, function(err, decoded){
+            if(err){
+                res.redirect('/user/login');
+            }
+            else{
+                //split the token
+                const user = decoded;
+                if(user.role == 'admin'){
+                    res.redirect('/admin/home_render');
+                }
+                else if(user.role == 'doctor'){
+                    res.redirect('/doctor/home_render');
+                }
+                else if (user.role == 'hasta'){
+                    res.redirect('/user/home_render');
+                }
+            }
+        });
+    }
 
-router.post("/login", function(req,res){
+    res.redirect('/user/login');
+});
+
+
+router.post("/login", async function(req,res){
     try
     {
         const {tcno, password} = req.body;
         //console.log(tcno);
         //console.log(password);
-        
         console.log(req.body);
+
+        if(tcno.length !== 11)
+        {
+            return res.render('user/login', {
+                message: 'TC Kimlik Numarası 11 haneli olmalıdır',
+                kutu_baslik: 'Kullanıcı Girişi',
+                title: 'Kullanıcı Girişi',
+                alert_type: 'alert-danger',
+            });
+        }
+
+        const [results3,] = await db.execute("SELECT * FROM hasta WHERE tcno = ?", [tcno]);
+
+        if(results3.length === 0)
+        {
+            return res.render('user/login', {
+                message: 'Bu TC Kimlik Numarası ile kayıtlı bir kullanıcı bulunamadı',
+                kutu_baslik: 'Kullanıcı Girişi',
+                title: 'Kullanıcı Girişi',
+                alert_type: 'alert-danger',
+            });
+        }
+        else
+        {
+            const hashedInput = results3[0].sifre;
+
+            if( await bcrypt.compare(password, hashedInput))
+            {
+                const user_id = results3[0].hastaid;
+                const token = jwt.sign({tcno: tcno, user_id: user_id, role: "hasta"}, process.env.JWT_SECRET, { expiresIn: '1h' });
+                //cookie
+                res.cookie('token', token, {httpOnly: true});
+                //https
+                //res.cookie('token', token, {httpOnly: true, secure: true});
+                
+                //console.log(token);
+
+                return res.redirect('/user/home_render');
+            }
+            else
+            {
+                return res.render('user/login', {
+                    message: 'Şifre yanlış',
+                    kutu_baslik: 'Kullanıcı Girişi',
+                    title: 'Kullanıcı Girişi',
+                    alert_type: 'alert-danger',
+                });
+            }
+        }
+
     }
     catch(err)
     {
@@ -36,7 +114,6 @@ router.post("/login", function(req,res){
 
 });
 
-
 router.get("/register", function(req,res){
     res.render('user/register', {
         title: 'Kullanıcı Kayıt',
@@ -44,6 +121,34 @@ router.get("/register", function(req,res){
         message: '',
         alert_type: '',
     });
+});
+
+router.get("/register_render", function(req,res){
+    if(req.cookies.token)
+    {
+        const token = req.cookies.token;
+        jwt.verify(token, process.env.JWT_SECRET, function(err, decoded){
+            if(err){
+                res.redirect('/user/register');
+            }
+            else{
+                //split the token
+                const user = decoded;
+                if(user.role == 'admin'){
+                    res.redirect('/admin/home_render');
+                }
+                else if(user.role == 'doctor'){
+                    res.redirect('/doctor/home_render');
+                }
+                else if (user.role == 'hasta'){
+                    res.redirect('/user/home_render');
+                }
+            }
+        });
+    }
+
+
+    res.redirect('/user/register');
 });
 
 function sayiDisindaKarakterVarMi(str) {
@@ -311,6 +416,57 @@ router.post("/register", async function(req,res){
     }
     
 
+});
+
+
+function verifyToken(req,res)
+{
+    const token = req.cookies.token;
+    if(!token)
+    {
+        return res.render('user/login',
+        {
+            message: 'Token bulunamadı',
+            kutu_baslik: 'Kullanıcı Girişi',
+            title: 'Kullanıcı Girişi',
+            alert_type: 'alert-danger',
+        }
+        );
+    }
+    try
+    {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        //console.log(decoded);
+        return decoded;
+    }
+    catch(err)
+    {
+        return res.render('user/login',
+        {
+            message: 'Token geçersiz',
+            kutu_baslik: 'Kullanıcı Girişi',
+            title: 'Kullanıcı Girişi',
+            alert_type: 'alert-danger',
+        }
+        );
+    }
+}
+router.get("/home", function(req,res){
+    res.render('user/home', {
+        title: 'Kullanıcı Anasayfa',
+    });
+});
+
+
+router.get("/home_render", function(req,res){
+    const user = verifyToken(req,res);
+    console.log(user);
+    res.redirect('/user/home');
+});
+
+router.get("/logout", function(req,res){
+    res.clearCookie('token');
+    res.redirect('/user/login_render');
 });
 
 module.exports = router;

@@ -3,9 +3,17 @@
 <head>
     <%- include('../partials/head') %>
     <title><%= title %></title>
-    
+    <style>
+        body {
+            /* display: flex; */
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to right, #f0f0f0, #b5fcd8);
+        }
+    </style>
 </head>
 <body>
-    user home
+    <%- include('../partials/user/begining-header') %>
 </body>
 </html>
