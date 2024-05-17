@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head') %>
+    <title>Doktor Listesi</title>
+    
+</head>
+<body>
+    <%- include('../partials/user/begining-header') %>
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col-md-12 mt-3">
+                <h3>Doktor Listesi</h3>
+            </div>
+            <div class="col-md-12 mt-3">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th style="width:50px">Id</th>
+                            <th>Tc Kimlik No</th>
+                            <th>İsim</th>
+                            <th>Soyisim</th>
+                            <th>Uzmanlık Alanı</th>
+                            <th>Çalıştığı Hastane</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% doctors.forEach(doctor => { %>
+                            <tr>
+                                <td>
+                                    <%= doctor.iddoktor %>
+                                </td>
+                                <td>
+                                    <%= doctor.tcno %>
+                                </td>
+                                <td>
+                                    <%= doctor.isim %>
+                                </td>
+                                <td>
+                                    <%= doctor.soyisim %>
+                                </td>
+                                <td>
+                                    <%= doctor.uzmanlik_alani %>
+                                </td>
+                                <td>
+                                    <%= doctor.calistigi_hastane %>
+                                </td>
+                            </tr>
+                         
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+    </div>
+
+    
+</body>
+</html>

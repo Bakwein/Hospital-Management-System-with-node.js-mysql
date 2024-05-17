@@ -80,7 +80,7 @@ router.post("/login", async function(req,res){
         else
         {
             if(password == admins[0].sifre){
-                const token = jwt.sign({username: admins[0].kullaniciadi, id: admins[0].id}, process.env.JWT_SECRET, {expiresIn: '1h'});
+                const token = jwt.sign({username: admins[0].kullaniciadi, user_id: admins[0].id, role: "admin"}, process.env.JWT_SECRET, {expiresIn: '1h'});
                 //cookie
                 res.cookie('token', token, {httpOnly: true});
                 //https
@@ -338,7 +338,7 @@ router.post('/hasta-create', async function(req,res){
         const [users, ] = await db.execute("SELECT * FROM hasta WHERE tcno = ?", [tcno]);
 
         if(users.length === 0){
-            const hashedPassword = await bcrypt.hash(sifre, 10);
+            const hashedPassword = await bcrypt.hash(sifre, 8);
 
             await db.execute("INSERT INTO hasta(tcno, isim, soyisim, dogumTarihi, cinsiyet, telefon, sehir, ilce, mahalle, sifre) VALUES(?,?,?,?,?,?,?,?,?,?)",[tcno, isim, soyisim, dogumTarihi, cinsiyet, telefon, sehir, ilce, mahalle, hashedPassword]);
 
@@ -454,7 +454,7 @@ router.post('/doctor-create', async function(req,res){
 
 
         if(doctors.length === 0){
-            const hashedPassword = await bcrypt.hash(sifre, 10);
+            const hashedPassword = await bcrypt.hash(sifre, 8);
             console.log(hashedPassword);
 
             await db.execute("INSERT INTO doktor(tcno, isim, soyisim, uzmanlik_alani, calistigi_hastane, password) VALUES(?,?,?,?,?,?)",[tcno, isim, soyisim, uzmanlik_alani, calistigi_hastane, hashedPassword]);
@@ -480,6 +480,15 @@ router.post('/doctor-create', async function(req,res){
 
 
 router.get('/profile', async function(req,res){
+    if(req.cookies.token){
+        //verify it
+        const token = req.cookies.token;
+        jwt.verify(token, process.env.JWT_SECRET, function(err, decoded){
+            if(err){
+                res.redirect('/admin/login');
+            }
+        });
+    }
     try{
         const token = req.cookies.token;
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -489,7 +498,7 @@ router.get('/profile', async function(req,res){
     if(admins.length === 0){
         //cookieyi temizle
         res.clearCookie('token');
-        return redirect('/admin/login');
+        return res.redirect('/admin/login');
     }
     else{
         res.render('admin/profile', {
@@ -505,6 +514,125 @@ router.get('/profile', async function(req,res){
     }
     
 
+
+});
+
+//post
+router.post('/profile_update', async function(req,res){
+    try{
+        const {id, kullaniciadi, sifre} = req.body;
+        //console.log(id, kullaniciadi, sifre);
+
+        if(kullaniciadi.length < 2){
+            return res.render('admin/profile_update', {
+                id: id,
+                kullaniciadi: kullaniciadi,
+                message: 'Kullanıcı adı en az 2 karakter olmalıdır.',
+                alert_type: 'alert-danger',
+            });
+        }
+        else if(kullaniciadi.length > 50){
+            return res.render('admin/profile_update', {
+                id: id,
+                kullaniciadi: kullaniciadi,
+                message: 'Kullanıcı adı en fazla 50 karakter olabilir.',
+                alert_type: 'alert-danger',
+            });
+        }
+        else{
+            const [admins, ] = await db.execute("SELECT * FROM admin WHERE kullaniciadi = ?", [kullaniciadi]);
+            if(admins.length === 0){
+                await db.execute("UPDATE admin SET kullaniciadi = ?, sifre = ? WHERE adminid = ?", [kullaniciadi, sifre, id]);
+
+                //token
+                res.clearCookie('token');
+                const token = jwt.sign({username: kullaniciadi, user_id: id, role: "admin"}, process.env.JWT_SECRET, {expiresIn: '1h'});
+                //cookie
+                //sil
+                res.cookie('token', token, {httpOnly: true});
+                //https
+                //res.cookie('token', token, {httpOnly: true, secure: true});
+
+                res.render('admin/profile_update', {
+                    id: id,
+                    kullaniciadi: kullaniciadi,
+                    message: 'Profil başarıyla güncellendi.',
+                    alert_type: 'alert-success',
+                });
+            }
+            else{
+                // aynı kullanıcı adı var, güncelle
+                if(admins[0].adminid == id){
+                    await db.execute("UPDATE admin SET kullaniciadi = ?, sifre = ? WHERE adminid = ?", [kullaniciadi, sifre, id]);
+
+                    //token
+                    res.clearCookie('token');
+                    const token = jwt.sign({username: kullaniciadi, user_id: id, role: "admin"}, process.env.JWT_SECRET, {expiresIn: '1h'});
+                    //cookie
+                    //sil
+                    res.cookie('token', token, {httpOnly: true});
+                    //https
+                    //res.cookie('token', token, {httpOnly: true, secure: true});
+
+                    res.render('admin/profile_update', {
+                        id: id,
+                        kullaniciadi: kullaniciadi,
+                        message: 'Profil başarıyla güncellendi.',
+                        alert_type: 'alert-success',
+                    });
+                }
+                else{
+                    return res.render('admin/profile_update', {
+                        id: id,
+                        kullaniciadi: kullaniciadi,
+                        message: 'Bu kullanıcı adı zaten kullanımda.',
+                        alert_type: 'alert-danger',
+                    });
+                }
+            }
+        }
+
+    }
+    catch(err)
+    {
+        console.log(err);
+    }
+});
+
+
+router.get('/profile_update', async function(req,res){
+    try{
+        const token = req.cookies.token;
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const username = decoded.username;
+        const [admins, ] = await db.execute("SELECT * FROM admin WHERE kullaniciadi = ?", [username]);
+        res.render('admin/profile_update', {
+            id: admins[0].adminid,
+            kullaniciadi: admins[0].kullaniciadi,
+            message: '',
+            alert_type: '',
+        });
+
+    }
+    catch(err)
+    {
+        console.log(err);
+    }
+    
+});
+
+
+router.get('/profile_update_render', async function(req,res){
+    if(req.cookies.token){
+        //verify it
+        const token = req.cookies.token;
+        jwt.verify(token, process.env.JWT_SECRET, function(err, decoded){
+            if(err){
+                res.redirect('/admin/login');
+            }
+        });
+    }
+    res.redirect('/admin/profile_update');
 
 });
 

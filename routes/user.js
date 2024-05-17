@@ -461,4 +461,566 @@ router.get("/logout", function(req,res){
     res.redirect('/user/login_render');
 });
 
+router.get('/doctor-list', async function(req,res){
+    try{
+        const [doctors,] = await db.execute("SELECT * FROM doktor");
+        res.render('user/doctor-list', {
+            doctors: doctors,
+        });
+
+    }
+    catch(err)
+    {
+        console.log(err);
+    }
+});
+
+
+router.get("/profile", async function(req,res){
+    if(req.cookies.token){
+        //verify it
+        const token = req.cookies.token;
+        jwt.verify(token, process.env.JWT_SECRET, function(err, decoded){
+            if(err){
+                res.redirect('/user/login');
+            }
+        });
+    }
+    try{
+        const token = req.cookies.token;
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const tcno = decoded.tcno;
+        const [results,] = await db.execute("SELECT * FROM hasta WHERE tcno = ?", [tcno]); 
+        let cinsiyettemp = results[0].cinsiyet;
+        if(cinsiyettemp === '0')
+        {
+            cinsiyettemp = 'Cinsiyet belirtilmemiş';
+        }
+        else if(cinsiyettemp === '1')
+        {
+            cinsiyettemp = 'Erkek';
+        }
+        else if(cinsiyettemp === '2')
+        {
+            cinsiyettemp = 'Kadın';
+        }
+
+        if(results.length === 0)
+        {
+            res.clearCookie('token');
+            return res.redirect('/user/login_render');
+
+        }
+        else
+        {
+            res.render('user/profile', {
+                id: results[0].hastaid,
+                tcno: results[0].tcno,
+                isim: results[0].isim,
+                soyisim: results[0].soyisim,
+                dogumTarihi: results[0].dogumTarihi,
+                cinsiyet: cinsiyettemp,
+                telefon: results[0].telefon,
+                sehir: results[0].sehir,
+                ilce: results[0].ilce,
+                mahalle: results[0].mahalle,
+            });
+        }
+
+    }
+    catch(err)
+    {
+        console.log(err);
+    }
+});
+
+//post
+
+router.post('/profile_update', async function(req,res){
+    try{
+        const {id, tcno, isim, soyisim, dogumTarihi, cinsiyet, telefon, sehir, ilce, mahalle,sifre} = req.body;
+
+        if(tcno.length !== 11)
+        {
+            return res.render('user/profile_update', {
+                id: id,
+                tcno: tcno,
+                isim: isim,
+                soyisim: soyisim,
+                dogumTarihi: dogumTarihi,
+                cinsiyet: cinsiyet,
+                telefon: telefon,
+                sehir: sehir,
+                ilce: ilce,
+                mahalle: mahalle,
+                message: 'TC Kimlik Numarası 11 haneli olmalıdır',
+                alert_type: 'alert-danger',
+            });
+        }
+        else if(sayiDisindaKarakterVarMi(tcno)){
+            return res.render('user/profile_update', {
+                id: id,
+                tcno: tcno,
+                isim: isim,
+                soyisim: soyisim,
+                dogumTarihi: dogumTarihi,
+                cinsiyet: cinsiyet,
+                telefon: telefon,
+                sehir: sehir,
+                ilce: ilce,
+                mahalle: mahalle,
+                message: 'TC Kimlik Numarası sadece sayılardan oluşmalıdır',
+                alert_type: 'alert-danger',
+            });
+        }
+        else if(harfDisindaKarakterVarMi(isim)){
+            return res.render('user/profile_update', {
+                id: id,
+                tcno: tcno,
+                isim: isim,
+                soyisim: soyisim,
+                dogumTarihi: dogumTarihi,
+                cinsiyet: cinsiyet,
+                telefon: telefon,
+                sehir: sehir,
+                ilce: ilce,
+                mahalle: mahalle,
+                message: 'İsim sadece harflerden oluşmalıdır',
+                alert_type: 'alert-danger',
+            });
+        }
+        else if(isim.length < 2)
+        {
+            return res.render('user/profile_update', {
+                id: id,
+                tcno: tcno,
+                isim: isim,
+                soyisim: soyisim,
+                dogumTarihi: dogumTarihi,
+                cinsiyet: cinsiyet,
+                telefon: telefon,
+                sehir: sehir,
+                ilce: ilce,
+                mahalle: mahalle,
+                message: 'İsim en az 2 karakter olmalıdır',
+                alert_type: 'alert-danger',
+            });
+        }
+        else if(isim.length > 50)
+        {
+            return res.render('user/profile_update', {
+                id: id,
+                tcno: tcno,
+                isim: isim,
+                soyisim: soyisim,
+                dogumTarihi: dogumTarihi,
+                cinsiyet: cinsiyet,
+                telefon: telefon,
+                sehir: sehir,
+                ilce: ilce,
+                mahalle: mahalle,
+                message: 'İsim en fazla 50 karakter olmalıdır',
+                alert_type: 'alert-danger',
+            });
+        }
+        else if(harfDisindaKarakterVarMi(soyisim)){
+            return res.render('user/profile_update', {
+                id: id,
+                tcno: tcno,
+                isim: isim,
+                soyisim: soyisim,
+                dogumTarihi: dogumTarihi,
+                cinsiyet: cinsiyet,
+                telefon: telefon,
+                sehir: sehir,
+                ilce: ilce,
+                mahalle: mahalle,
+                message: 'Soyisim sadece harflerden oluşmalıdır',
+                alert_type: 'alert-danger',
+            });
+        }
+        else if(soyisim.length < 2)
+        {
+            return res.render('user/profile_update', {
+                id: id,
+                tcno: tcno,
+                isim: isim,
+                soyisim: soyisim,
+                dogumTarihi: dogumTarihi,
+                cinsiyet: cinsiyet,
+                telefon: telefon,
+                sehir: sehir,
+                ilce: ilce,
+                mahalle: mahalle,
+                message: 'Soyisim en az 2 karakter olmalıdır',
+                alert_type: 'alert-danger',
+            });
+        }
+        else if(soyisim.length > 50)
+        {
+            return res.render('user/profile_update', {
+                id: id,
+                tcno: tcno,
+                isim: isim,
+                soyisim: soyisim,
+                dogumTarihi: dogumTarihi,
+                cinsiyet: cinsiyet,
+                telefon: telefon,
+                sehir: sehir,
+                ilce: ilce,
+                mahalle: mahalle,
+                message: 'Soyisim en fazla 50 karakter olmalıdır',
+                alert_type: 'alert-danger',
+            });
+        }
+        else if(!isValidDate(dogumTarihi))
+        {
+            return res.render('user/profile_update', {
+                id: id,
+                tcno: tcno,
+                isim: isim,
+                soyisim: soyisim,
+                dogumTarihi: dogumTarihi,
+                cinsiyet: cinsiyet,
+                telefon: telefon,
+                sehir: sehir,
+                ilce: ilce,
+                mahalle: mahalle,
+                message: 'Doğum tarihi geçerli bir tarih değil',
+                alert_type: 'alert-danger',
+            });
+        }
+        //dogum tarihi bugünden büyük olamaz
+        else if(new Date(dogumTarihi) > new Date())
+        {
+            return res.render('user/profile_update', {
+                id: id,
+                tcno: tcno,
+                isim: isim,
+                soyisim: soyisim,
+                dogumTarihi: dogumTarihi,
+                cinsiyet: cinsiyet,
+                telefon: telefon,
+                sehir: sehir,
+                ilce: ilce,
+                mahalle: mahalle,
+                message: 'Doğum tarihi bugünden büyük olamaz',
+                alert_type: 'alert-danger',
+            });
+        }
+        else if(cinsiyet !== '1' && cinsiyet !== '2' && cinsiyet !== "0")
+        {
+            return res.render('user/profile_update', {
+                id: id,
+                tcno: tcno,
+                isim: isim,
+                soyisim: soyisim,
+                dogumTarihi: dogumTarihi,
+                cinsiyet: cinsiyet,
+                telefon: telefon,
+                sehir: sehir,
+                ilce: ilce,
+                mahalle: mahalle,
+                message: 'Cinsiyet erkek, kadın veya belirtilmemiş olmalıdır',
+                alert_type: 'alert-danger',
+            });
+        }
+        else if(telefon.length !== 10)
+        {
+            return res.render('user/profile_update', {
+                id: id,
+                tcno: tcno,
+                isim: isim,
+                soyisim: soyisim,
+                dogumTarihi: dogumTarihi,
+                cinsiyet: cinsiyet,
+                telefon: telefon,
+                sehir: sehir,
+                ilce: ilce,
+                mahalle: mahalle,
+                message: 'Telefon numarası 10 haneli olmalıdır',
+                alert_type: 'alert-danger',
+            });
+        }
+        else if(sayiDisindaKarakterVarMi(telefon))
+        {
+            return res.render('user/profile_update', {
+                id: id,
+                tcno: tcno,
+                isim: isim,
+                soyisim: soyisim,
+                dogumTarihi: dogumTarihi,
+                cinsiyet: cinsiyet,
+                telefon: telefon,
+                sehir: sehir,
+                ilce: ilce,
+                mahalle: mahalle,
+                message: 'Telefon numarası sadece sayılardan oluşmalıdır',
+                alert_type: 'alert-danger',
+            });
+        }
+        else if(harfDisindaKarakterVarMi(sehir))
+        {
+            return res.render('user/profile_update', {
+                id: id,
+                tcno: tcno,
+                isim: isim,
+                soyisim: soyisim,
+                dogumTarihi: dogumTarihi,
+                cinsiyet: cinsiyet,
+                telefon: telefon,
+                sehir: sehir,
+                ilce: ilce,
+                mahalle: mahalle,
+                message: 'Şehir sadece harflerden oluşmalıdır',
+                alert_type: 'alert-danger',
+            });
+        }
+        else if(sehir.length < 2)
+        {
+            return res.render('user/profile_update', {
+                id: id,
+                tcno: tcno,
+                isim: isim,
+                soyisim: soyisim,
+                dogumTarihi: dogumTarihi,
+                cinsiyet: cinsiyet,
+                telefon: telefon,
+                sehir: sehir,
+                ilce: ilce,
+                mahalle: mahalle,
+                message: 'Şehir en az 2 karakter olmalıdır',
+                alert_type: 'alert-danger',
+            });
+        }
+        else if(sehir.length > 50)
+        {
+            return res.render('user/profile_update', {
+                id: id,
+                tcno: tcno,
+                isim: isim,
+                soyisim: soyisim,
+                dogumTarihi: dogumTarihi,
+                cinsiyet: cinsiyet,
+                telefon: telefon,
+                sehir: sehir,
+                ilce: ilce,
+                mahalle: mahalle,
+                message: 'Şehir en fazla 50 karakter olmalıdır',
+                alert_type: 'alert-danger',
+            });
+        }
+        else if(harfDisindaKarakterVarMi(ilce))
+        {
+            return res.render('user/profile_update', {
+                id: id,
+                tcno: tcno,
+                isim: isim,
+                soyisim: soyisim,
+                dogumTarihi: dogumTarihi,
+                cinsiyet: cinsiyet,
+                telefon: telefon,
+                sehir: sehir,
+                ilce: ilce,
+                mahalle: mahalle,
+                message: 'İlçe sadece harflerden oluşmalıdır',
+                alert_type: 'alert-danger',
+            });
+        }
+        else if(ilce.length < 2)
+        {
+            return res.render('user/profile_update', {
+                id: id,
+                tcno: tcno,
+                isim: isim,
+                soyisim: soyisim,
+                dogumTarihi: dogumTarihi,
+                cinsiyet: cinsiyet,
+                telefon: telefon,
+                sehir: sehir,
+                ilce: ilce,
+                mahalle: mahalle,
+                message: 'İlçe en az 2 karakter olmalıdır',
+                alert_type: 'alert-danger',
+            });
+        }
+        else if(ilce.length > 50)
+        {
+            return res.render('user/profile_update', {
+                id: id,
+                tcno: tcno,
+                isim: isim,
+                soyisim: soyisim,
+                dogumTarihi: dogumTarihi,
+                cinsiyet: cinsiyet,
+                telefon: telefon,
+                sehir: sehir,
+                ilce: ilce,
+                mahalle: mahalle,
+                message: 'İlçe en fazla 50 karakter olmalıdır',
+                alert_type: 'alert-danger',
+            });
+        }
+        else if(mahalle.length < 2)
+        {
+            return res.render('user/profile_update', {
+                id: id,
+                tcno: tcno,
+                isim: isim,
+                soyisim: soyisim,
+                dogumTarihi: dogumTarihi,
+                cinsiyet: cinsiyet,
+                telefon: telefon,
+                sehir: sehir,
+                ilce: ilce,
+                mahalle: mahalle,
+                message: 'Mahalle en az 2 karakter olmalıdır',
+                alert_type: 'alert-danger',
+            });
+        }
+        else if(mahalle.length > 50)
+        {
+            return res.render('user/profile_update', {
+                id: id,
+                tcno: tcno,
+                isim: isim,
+                soyisim: soyisim,
+                dogumTarihi: dogumTarihi,
+                cinsiyet: cinsiyet,
+                telefon: telefon,
+                sehir: sehir,
+                ilce: ilce,
+                mahalle: mahalle,
+                message: 'Mahalle en fazla 50 karakter olmalıdır',
+                alert_type: 'alert-danger',
+            });
+        }
+        else
+        {
+            const [results,] = await db.execute("SELECT * FROM hasta WHERE hastaid = ?", [tcno]);
+            let newHashed = await bcrypt.hash(sifre, 8);
+            if(results.length === 0)
+            {
+                await db.execute("UPDATE hasta SET tcno = ?, isim = ?, soyisim = ?, dogumTarihi = ?, cinsiyet = ?, telefon = ?, sehir = ?, ilce = ?, mahalle = ?, sifre = ? WHERE hastaid = ?", [tcno, isim, soyisim, dogumTarihi, cinsiyet, telefon, sehir, ilce, mahalle, newHashed, id]);
+
+                //token
+                res.clearCookie('token');
+                const token = jwt.sign({tcno: tcno, user_id: id, role: "hasta"}, process.env.JWT_SECRET, { expiresIn: '1h' });
+                res.cookie('token', token, {httpOnly: true});
+                //https
+                //res.cookie('token', token, {httpOnly: true, secure: true});
+
+                return res.render('user/profile_update', {
+                    id: id,
+                    tcno: tcno,
+                    isim: isim,
+                    soyisim: soyisim,
+                    dogumTarihi: dogumTarihi,
+                    cinsiyet: cinsiyet,
+                    telefon: telefon,
+                    sehir: sehir,
+                    ilce: ilce,
+                    mahalle: mahalle,
+                    message: 'Profil güncellendi',
+                    alert_type: 'alert-success',
+                });
+            }
+            else
+            {
+                if(results[0].hastaid == id)
+                {
+                    await db.execute("UPDATE hasta SET tcno = ?, isim = ?, soyisim = ?, dogumTarihi = ?, cinsiyet = ?, telefon = ?, sehir = ?, ilce = ?, mahalle = ?, sifre = ? WHERE hastaid = ?", [tcno, isim, soyisim, dogumTarihi, cinsiyet, telefon, sehir, ilce, mahalle, newHashed, id]);
+                    //token
+                    res.clearCookie('token');
+                    const token = jwt.sign({tcno: tcno, user_id: id, role: "hasta"}, process.env.JWT_SECRET, { expiresIn: '1h' });
+                    res.cookie('token', token, {httpOnly: true});
+                    //https
+                    //res.cookie('token', token, {httpOnly: true, secure: true});
+
+                    return res.render('user/profile_update', {
+                        id: id,
+                        tcno: tcno,
+                        isim: isim,
+                        soyisim: soyisim,
+                        dogumTarihi: dogumTarihi,
+                        cinsiyet: cinsiyet,
+                        telefon: telefon,
+                        sehir: sehir,
+                        ilce: ilce,
+                        mahalle: mahalle,
+                        message: 'Profil güncellendi',
+                        alert_type: 'alert-success',
+                    });
+                
+                }
+                else
+                {
+                    return res.render('user/profile_update', {
+                        id: id,
+                        tcno: tcno,
+                        isim: isim,
+                        soyisim: soyisim,
+                        dogumTarihi: dogumTarihi,
+                        cinsiyet: cinsiyet,
+                        telefon: telefon,
+                        sehir: sehir,
+                        ilce: ilce,
+                        mahalle: mahalle,
+                        message: 'Bu TC Kimlik Numarası ile kayıtlı bir kullanıcı zaten var',
+                        alert_type: 'alert-danger',
+                    });
+                }
+            }
+
+        }
+    }
+    catch(err)
+    {
+        console.log(err);
+    }
+});
+
+
+
+router.get('/profile_update', async function(req,res){
+    try{
+        const token = req.cookies.token;
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const tcno = decoded.tcno;
+        const [results,] = await db.execute("SELECT * FROM hasta WHERE tcno = ?", [tcno]);
+        res.render('user/profile_update', {
+            id: results[0].hastaid,
+            tcno: results[0].tcno,
+            isim: results[0].isim,
+            soyisim: results[0].soyisim,
+            //dogumTarihi: results[0].dogumTarihi,
+            //cinsiyet: cinsiyettemp,
+            telefon: results[0].telefon,
+            sehir: results[0].sehir,
+            ilce: results[0].ilce,
+            mahalle: results[0].mahalle,
+            message: '',
+            alert_type: '',
+        });
+    }
+    catch(err)
+    {
+        console.log(err);
+    }
+});
+
+router.get('/profile_update_render', async function(req,res){
+    if(req.cookies.token){
+        //verify it
+        const token = req.cookies.token;
+        jwt.verify(token, process.env.JWT_SECRET, function(err, decoded){
+            if(err){
+                res.redirect('/user/login');
+            }
+        });
+    }
+    res.redirect('/user/profile_update');
+});
+
+
 module.exports = router;

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head') %>
+    <title>Hasta Profili Güncelle</title>
+    
+    
+</head>
+<body>
+    <%- include('../partials/user/begining-header') %>
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col-md-12 mt-3">
+                <h3>Hasta Profili Güncelle</h3>
+            </div>
+            <div class="col-md-12 mt-3">
+                <form method="post">
+                    <div class="row mb-3">
+                        <label for="id" class="col-sm-2 col-from-label">Id</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="id" name="id" readonly value="<%= id %>">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="tcno" class="col-sm-2 col-from-label">Tc Kimlik No:</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="tcno" name="tcno"  value="<%= tcno %>">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="isim" class="col-sm-2 col-from-label">İsim:</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="isim" name="isim"  value="<%= isim %>">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="soyisim" class="col-sm-2 col-from-label">Soyisim:</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="soyisim" name="soyisim"  value="<%= soyisim %>">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="dogumTarihi" class="col-sm-2 col-from-label">Doğum Tarihi:</label>
+                        <div class="col-sm-8">
+                            <input type="date" id="dogumTarihi" name="dogumTarihi" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="cinsiyet" class="col-sm-2 col-from-label">Cinsiyet:</label>
+                        <div class="col-sm-8">
+                            <select id="cinsiyet" name="cinsiyet" required>
+                                <option value="0">Belirtmek İstemiyorum</option>
+                                <option value="1">Erkek</option>
+                                <option value="2">Kadın</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="telefon" class="col-sm-2 col-from-label">Telefon(+90):</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="telefon" name="telefon"  value="<%= telefon %>">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="sehir" class="col-sm-2 col-from-label">Şehir:</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="sehir" name="sehir"  value="<%= sehir %>">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="ilce" class="col-sm-2 col-from-label">İlçe:</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="ilce" name="ilce"  value="<%= ilce %>">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="mahalle" class="col-sm-2 col-from-label">Mahalle:</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="mahalle" name="mahalle"  value="<%= mahalle %>">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="sifre" class="col-sm-2 col-from-label">Şifre:</label>
+                        <div class="col-sm-8">
+                            <input type="password" class="form-control" id="sifre" name="sifre">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-8 offset-sm-2">
+                            <button type="submit" class="btn btn-primary">Güncelle</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <% if (message && message.length > 0) { %>
+            <div class="row justify-content-center" style="margin-left: 90px;">
+                <div class="col-md-8">
+                    <div class="alert <%= alert_type %> row justify-content-center" role="alert">
+                        <%= message %>
+                    </div>
+                </div>
+            </div>
+        <% } %>
+    </div>
+    
+</body>
+</html>

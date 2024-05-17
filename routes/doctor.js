@@ -65,7 +65,7 @@ router.post("/login", async function(req,res){
             });
         }
 
-        const [results3,] = await db.query("SELECT * FROM doktor WHERE tcno = ?", [tcno]);
+        const [results3,] = await db.execute("SELECT * FROM doktor WHERE tcno = ?", [tcno]);
 
         if(results3.length === 0)
         {
@@ -269,7 +269,7 @@ router.post("/register", async function(req,res){
         }
         //BURAYA PASSWORD KONTROLÜ EKLENECEK
 
-        const [results,] = await db.query("SELECT * FROM doktor WHERE tcno = ?", [tcno]);
+        const [results,] = await db.execute("SELECT * FROM doktor WHERE tcno = ?", [tcno]);
         //console.log(results);
         if(results.length > 0)
         {
@@ -291,7 +291,7 @@ router.post("/register", async function(req,res){
         }
         let hashedPassword = await bcrypt.hash(password, 8);
         //console.log(hashedPassword);
-        await db.query("INSERT INTO doktor (tcno, isim, soyisim, uzmanlik_alani, calistigi_hastane, password) VALUES (?,?,?,?,?,?)", [tcno, isim, soyisim, alan, hastane, hashedPassword]);
+        await db.execute("INSERT INTO doktor (tcno, isim, soyisim, uzmanlik_alani, calistigi_hastane, password) VALUES (?,?,?,?,?,?)", [tcno, isim, soyisim, alan, hastane, hashedPassword]);
 
         return res.render('doctor/register', {
             message: 'Doktor başarıyla kaydedildi',
@@ -354,6 +354,318 @@ router.get("/home_render", function(req,res){
 router.get("/logout", function(req,res){
     res.clearCookie('token');
     res.redirect('/doctor/login_render');
+});
+
+
+router.get('/profile', async function(req,res){
+    if(req.cookies.token){
+        //verify it
+        const token = req.cookies.token;
+        jwt.verify(token, process.env.JWT_SECRET, function(err, decoded){
+            if(err){
+                res.redirect('/doctor/login');
+            }
+        });
+    }
+    try{
+        const token = req.cookies.token;
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const tcno = decoded.tcno;
+        const [results,] = await db.execute("SELECT * FROM doktor WHERE tcno = ?", [tcno]);
+
+        if(results.length === 0)
+        {
+           res.clearCookie('token');
+              res.redirect('/doctor/login');
+        }
+        else
+        {
+            res.render('doctor/profile', {
+                id: results[0].iddoktor,
+                tcno: results[0].tcno,
+                isim: results[0].isim,
+                soyisim: results[0].soyisim,
+                uzmanlik_alani: results[0].uzmanlik_alani,
+                calistigi_hastane: results[0].calistigi_hastane,
+            });
+        }
+
+    }
+    catch(err){
+        console.log(err);
+    }
+});
+
+//post 
+
+router.post('/profile_update', async function(req,res){
+    try{
+        const {id, tcno, isim, soyisim, uzmanlik_alani, calistigi_hastane, sifre} = req.body; 
+
+        if(tcno.length !== 11)
+        {
+            return res.render('doctor/profile_update', {
+                id: id,
+                tcno: tcno,
+                isim: isim,
+                soyisim: soyisim,
+                uzmanlik_alani: uzmanlik_alani,
+                calistigi_hastane: calistigi_hastane,
+                message: 'TC Kimlik Numarası 11 haneli olmalıdır',
+                alert_type: 'alert-danger',
+            });
+        }
+        else if(sayiDisindaKarakterVarMi(tcno))
+        {
+            return res.render('doctor/profile_update', {
+                id: id,
+                tcno: tcno,
+                isim: isim,
+                soyisim: soyisim,
+                uzmanlik_alani: uzmanlik_alani,
+                calistigi_hastane: calistigi_hastane,
+                message: 'TC Kimlik Numarası sadece sayılardan oluşmalıdır',
+                alert_type: 'alert-danger',
+            });
+        }
+        else if(harfDisindaKarakterVarMi(isim))
+        {
+            return res.render('doctor/profile_update', {
+                id: id,
+                tcno: tcno,
+                isim: isim,
+                soyisim: soyisim,
+                uzmanlik_alani: uzmanlik_alani,
+                calistigi_hastane: calistigi_hastane,
+                message: 'İsim sadece harflerden oluşmalıdır',
+                alert_type: 'alert-danger',
+            });
+        }
+        else if(isim.length < 2)
+        {
+            return res.render('doctor/profile_update', {
+                id: id,
+                tcno: tcno,
+                isim: isim,
+                soyisim: soyisim,
+                uzmanlik_alani: uzmanlik_alani,
+                calistigi_hastane: calistigi_hastane,
+                message: 'İsim en az 2 karakter olmalıdır',
+                alert_type: 'alert-danger',
+            });
+        }
+        else if(isim.length > 50)
+        {
+            return res.render('doctor/profile_update', {
+                id: id,
+                tcno: tcno,
+                isim: isim,
+                soyisim: soyisim,
+                uzmanlik_alani: uzmanlik_alani,
+                calistigi_hastane: calistigi_hastane,
+                message: 'İsim en fazla 50 karakter olmalıdır',
+                alert_type: 'alert-danger',
+            });
+        }
+        else if(harfDisindaKarakterVarMi(soyisim))
+        {
+            return res.render('doctor/profile_update', {
+                id: id,
+                tcno: tcno,
+                isim: isim,
+                soyisim: soyisim,
+                uzmanlik_alani: uzmanlik_alani,
+                calistigi_hastane: calistigi_hastane,
+                message: 'Soyisim sadece harflerden oluşmalıdır',
+                alert_type: 'alert-danger',
+            });
+        }
+        else if(soyisim.length < 2)
+        {
+            return res.render('doctor/profile_update', {
+                id: id,
+                tcno: tcno,
+                isim: isim,
+                soyisim: soyisim,
+                uzmanlik_alani: uzmanlik_alani,
+                calistigi_hastane: calistigi_hastane,
+                message: 'Soyisim en az 2 karakter olmalıdır',
+                alert_type: 'alert-danger',
+            });
+        }
+        else if(soyisim.length > 50)
+        {
+            return res.render('doctor/profile_update', {
+                id: id,
+                tcno: tcno,
+                isim: isim,
+                soyisim: soyisim,
+                uzmanlik_alani: uzmanlik_alani,
+                calistigi_hastane: calistigi_hastane,
+                message: 'Soyisim en fazla 50 karakter olmalıdır',
+                alert_type: 'alert-danger',
+            });
+        }
+        else if(uzmanlik_alani.length < 2)
+        {
+            return res.render('doctor/profile_update', {
+                id: id,
+                tcno: tcno,
+                isim: isim,
+                soyisim: soyisim,
+                uzmanlik_alani: uzmanlik_alani,
+                calistigi_hastane: calistigi_hastane,
+                message: 'Uzmanlık alanı en az 2 karakter olmalıdır',
+                alert_type: 'alert-danger',
+            });
+        }
+        else if(uzmanlik_alani.length > 50)
+        {
+            return res.render('doctor/profile_update', {
+                id: id,
+                tcno: tcno,
+                isim: isim,
+                soyisim: soyisim,
+                uzmanlik_alani: uzmanlik_alani,
+                calistigi_hastane: calistigi_hastane,
+                message: 'Uzmanlık alanı en fazla 50 karakter olmalıdır',
+                alert_type: 'alert-danger',
+            });
+        }
+        else if(calistigi_hastane.length < 2)
+        {
+            return res.render('doctor/profile_update', {
+                id: id,
+                tcno: tcno,
+                isim: isim,
+                soyisim: soyisim,
+                uzmanlik_alani: uzmanlik_alani,
+                calistigi_hastane: calistigi_hastane,
+                message: 'Çalıştığı hastane en az 2 karakter olmalıdır',
+                alert_type: 'alert-danger',
+            });
+        }
+        else if(calistigi_hastane.length > 50)
+        {
+            return res.render('doctor/profile_update', {
+                id: id,
+                tcno: tcno,
+                isim: isim,
+                soyisim: soyisim,
+                uzmanlik_alani: uzmanlik_alani,
+                calistigi_hastane: calistigi_hastane,
+                message: 'Çalıştığı hastane en fazla 50 karakter olmalıdır',
+                alert_type: 'alert-danger',
+            });
+        }
+        else
+        {
+            const [results,] = await db.execute("SELECT * FROM doktor WHERE tcno = ?", [tcno]);
+            let newHashed = await bcrypt.hash(sifre, 8);
+            if(results.length === 0 )
+            {
+                await db.execute("UPDATE doktor SET tcno = ?, isim = ?, soyisim = ?, uzmanlik_alani = ?, calistigi_hastane = ?, password = ? WHERE iddoktor = ?", [tcno, isim, soyisim, uzmanlik_alani, calistigi_hastane, newHashed ,id]);
+
+                //token
+                res.clearCookie('token');
+                const token = jwt.sign({tcno: tcno, user_id: id, role: 'doctor'}, process.env.JWT_SECRET, {expiresIn: '1h'});
+                res.cookie('token', token, {httpOnly: true});
+                //https
+                //res.cookie('token', token, {httpOnly: true, secure: true});
+
+                return res.render('doctor/profile_update', {
+                    id: id,
+                    tcno: tcno,
+                    isim: isim,
+                    soyisim: soyisim,
+                    uzmanlik_alani: uzmanlik_alani,
+                    calistigi_hastane: calistigi_hastane,
+                    message: 'Profil başarıyla güncellendi',
+                    alert_type: 'alert-success',
+                });
+            }
+            else
+            {
+                if(results[0].iddoktor == id)
+                {
+                    await db.execute("UPDATE doktor SET tcno = ?, isim = ?, soyisim = ?, uzmanlik_alani = ?, calistigi_hastane = ?, password = ? WHERE iddoktor = ?", [tcno, isim, soyisim, uzmanlik_alani, calistigi_hastane,newHashed, id]);
+
+                    //token
+                    res.clearCookie('token');
+                    const token = jwt.sign({tcno: tcno, user_id: id, role: 'doctor'}, process.env.JWT_SECRET, {expiresIn: '1h'});
+                    res.cookie('token', token, {httpOnly: true});
+                    //https
+                    //res.cookie('token', token, {httpOnly: true, secure: true});
+
+                    return res.render('doctor/profile_update', {
+                        id: id,
+                        tcno: tcno,
+                        isim: isim,
+                        soyisim: soyisim,
+                        uzmanlik_alani: uzmanlik_alani,
+                        calistigi_hastane: calistigi_hastane,
+                        message: 'Profil başarıyla güncellendi',
+                        alert_type: 'alert-success',
+                    });
+                } 
+                else
+                {
+                    return res.render('doctor/profile_update', {
+                        id: id,
+                        tcno: tcno,
+                        isim: isim,
+                        soyisim: soyisim,
+                        uzmanlik_alani: uzmanlik_alani,
+                        calistigi_hastane: calistigi_hastane,
+                        message: 'Bu TC Kimlik Numarası ile kayıtlı bir doktor bulunmaktadır',
+                        alert_type: 'alert-danger',
+                    });
+                
+                }
+            }
+        }
+    }  
+    catch(err){
+        console.log(err);
+    }
+});
+
+
+
+router.get('/profile_update', async function(req,res){
+    try{
+        const token = req.cookies.token;
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const tcno = decoded.tcno;
+        const [results,] = await db.execute("SELECT * FROM doktor WHERE tcno = ?", [tcno]);
+        res.render('doctor/profile_update', {
+            id: results[0].iddoktor,
+            tcno: results[0].tcno,
+            isim: results[0].isim,
+            soyisim: results[0].soyisim,
+            uzmanlik_alani: results[0].uzmanlik_alani,
+            calistigi_hastane: results[0].calistigi_hastane,
+            message: '',
+            alert_type: '',
+        });
+
+    }
+    catch(err){
+        console.log(err);
+    }
+});
+
+router.get('/profile_update_render', async function(req,res){
+    if(req.cookies.token){
+        //verify it
+        const token = req.cookies.token;
+        jwt.verify(token, process.env.JWT_SECRET, function(err, decoded){
+            if(err){
+                res.redirect('/doctor/login');
+            }
+        });
+    }
+    res.redirect('/doctor/profile_update');
 });
 
 module.exports = router;
