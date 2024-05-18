@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <%- include('../partials/head') %>
-    <title>Doktor Listesi</title>
+    <title>Randevularım</title>
     <style>
         body {
             /* display: flex; */
@@ -12,56 +12,58 @@
             background: linear-gradient(to right, #f0f0f0, #b5fcd8);
         }
     </style>
-    
 </head>
 <body>
-    <%- include('../partials/admin/begining-header') %>
+    <%- include('../partials/user/begining-header') %>
     <div class="container mt-3">
         <div class="row">
             <div class="col-md-12 mt-3">
-                <h3>Doktor Listesi</h3>
+                <h3>Randevularım</h3>
             </div>
             <div class="col-md-12 mt-3">
                 <table class="table table-bordered table-striped">
                     <thead>
                         <tr>
-                            <th style="width:50px">Id</th>
-                            <th>Tc Kimlik No</th>
-                            <th>İsim</th>
-                            <th>Soyisim</th>
-                            <th>Uzmanlık Alanı</th>
-                            <th>Çalıştığı Hastane</th>
+                            <th style="width:50px">Randevu Id</th>
+                            <th>Doktor Adı</th>
+                            <th>Doktor Soyadı</th>
+                            <th>Randevu Tarihi</th>
+                            <th>Randevu Saati</th>
                             <th style="width:130px"></th>
                         </tr>
                     </thead>
                     <tbody>
-                        <% doctors.forEach(doctor => { %>
+                        <% randevular.forEach(randevu => { %>
                             <tr>
                                 <td>
-                                    <%= doctor.iddoktor %>
+                                    <%= randevu.randevuid %>
                                 </td>
                                 <td>
-                                    <%= doctor.tcno %>
+                                    <% doktorlar.forEach(doktor => { %>
+                                        <% if (doktor.tcno == randevu.d_tcno ) { %>
+                                            <%= doktor.isim %>
+                                        <% } %>
+                                    <% }) %>
                                 </td>
                                 <td>
-                                    <%= doctor.isim %>
+                                    <% doktorlar.forEach(doktor => { %>
+                                        <% if (doktor.tcno == randevu.d_tcno ) { %>
+                                            <%= doktor.soyisim %>
+                                        <% } %>
+                                    <% }) %>
                                 </td>
                                 <td>
-                                    <%= doctor.soyisim %>
+                                    <%= randevu.tarih %>
                                 </td>
                                 <td>
-                                    <%= doctor.uzmanlik_alani %>
-                                </td>
-                                <td>
-                                    <%= doctor.calistigi_hastane %>
+                                    <%= randevu.saat %>
                                 </td>
                                 <td>
                                    
-                                    <a class="btn btn-sm btn-primary" href="/admin/doktor/<%= doctor.iddoktor %>">Güncelle</a>
-                                    <a class="btn btn-sm btn-danger" href="/admin/doktor/delete/<%= doctor.iddoktor %>">Sil</a>
+                                    <a class="btn btn-sm btn-primary" href="/user/randevu/<%= randevu.randevuid %>">Güncelle</a>
+                                    <a class="btn btn-sm btn-danger" href="/user/randevu/delete/<%= randevu.randevuid %>">Sil</a>
                                 </td>
                             </tr>
-                         
                         <% }) %>
                     </tbody>
                 </table>

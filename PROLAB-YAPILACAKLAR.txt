@@ -1,56 +1,35 @@
-YAPILACAKLAR
+!!!!NDP -  trigger fonksiyonları
 
-VERİ TABANI ER OLUŞTURMA! VERİ TABANI İLİŞKİSEL HALE GETİRİLMELİ NORMALİZASYONA UYULMALI
-hasta,doktor,yönetici,randevu,rapor CLASS olamalı !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-trigger ile tüm tabloları güncelleme????????
-sayfayı https yapma
+!TIBBI RAPORLAR - Arayüzde AJAX çağrıları kullanarak sayfa yenilenmeden dosya yükleme ve indirme işlemlerini 
+gerçekleştirmelidir
+-Resim olarak yüklenecek siz uygulamada kullandığınız dosya sisteminde depolayacaksınız. 
+-raporlar database'inden örneklere bak
+-RAPORLAR İNDİRİLİP YÜKLENEBİLMELİ!!!
 
-Hastaların ve doktorların randevularını, laboratuvar
-sonuçlarını görebileceği, yükleyebileceği ve indirebileceği bir arayüz eklenmelidirBu
-arayüzde sonuçların tarihleri ve türleri gibi bilgileri de gösterecek şekilde düzenleyin.
-
-Arayüzde AJAX çağrıları kullanarak sayfa
-yenilenmeden dosya yükleme ve indirme işlemlerini gerçekleştirmelidir
-
-Bildirim Sistemi Kurulumu: Kullanıcılara yeni laboratuvar sonuçları yüklendiğinde
+!Bildirim Sistemi Kurulumu: Kullanıcılara yeni laboratuvar sonuçları yüklendiğinde
 veya sonuçlarında önemli bir güncelleme olduğunda bildirim gönderen bir sistem
-kurulmalıdır
+kurulmalıdır.
 
-SORGULAR
-Bir doktor, tüm hastalarını görüntüleyebilmelidir. Her hastanın adı, soyadı,
-doğum tarihi, cinsiyeti, telefon numarası, adresi gibi temel bilgiler
-listelenmelidir.Bir doktor, belirli bir hastasına ait tıbbi rapor sonuçlarını
-görüntüleyebilmelidir. Hastanın adı ve soyadıyla birlikte raporların tarihi,
-içeriği, sonuçları gibi bilgiler sunulmalıdır.
-Bir hasta, tüm randevularını görüntüleyebilmelidir. Her randevunun tarihi,
-saati, doktoru gibi bilgiler listelenmelidir.Bir hasta, tüm tıbbi rapor sonuçlarını görüntüleyebilmelidir. Raporların tarihi,
-içeriği, sonuçları gibi bilgiler sunulmalıdır.
+!TABLO NORMALİZASYONA BAK -> HASTAYI SİLİNCE RANDEVU DA SİLİNİYOR MU KONTROL ET
 
 
+!!NAV EKSİK BÖLÜMLER
+-Doktor 
+Hastalarım, Hastalarımın Bigileri,Bakılacak Randevular
 
 
-HASTA GİRİŞİ
+-Admin
+Tıbbi Rapor Ekleme(bu hepsi için de geçerli olaiblir(?)),Tıbbi Rapor Bilgilerini Güncelleme,
 
 
-DOKTOR GİRİŞİ
+-Hasta
+Tıbbi Sonuçlarım, Randevu al, Randevu Düzenle(randevularım kısmı)
 
 
-YÖNETİCİ GİRİŞİ
-ALTTAKİ İŞLEMLERLE TÜM TABLOLAR GÜNCELLENMELİ!
-Hasta Ekleme/ Silme -> 
-2. Doktor Ekleme/ Silme: Aktif randevusu bulunan bir doktor
-silinemeyecektir.
-3. Randevu Alma/ İptal Etme:
-Tıbbi Rapor Ekleme: Bir hastanın tıbbi raporunu ekleyerek raporun veri tabanına doğru
-bir şekilde kaydedilip kaydedilmediğini gösterilmelidir.
-5. Hasta Bilgilerini Güncelleme:
-6. Doktor Bilgilerini Güncelleme
-7. Randevu Bilgilerini Güncelleme:
-8. Tıbbi Rapor Bilgilerini Güncelleme:
+!!TABLOLAR PAGING OLAYI - HİÇ OLMAYINCA DA TABLO HEADERI ÇIKMASIN YOK FALAN YAZSIN
 
-NOT: İsterlerde belirtilen işlemler gerçekleştiğinde, arayüzde bir onay mesajı gösterilmeli ve
-veri tabanı değişiklikleri anlık olarak raporlanmalıdır
+!Hasta ve doktor profillerine, kullanıcıların tıbbi geçmişlerini, tedavi notlarını ve randevu
+geçmişlerini görebilmeleri için dashboardlar eklenmelidir.
 
 
-
-BUGLAR
+!!100 TANE RANDOM DATA EKLE HER ŞEY İÇİN!!!!!!

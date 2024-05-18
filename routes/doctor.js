@@ -30,24 +30,25 @@ router.get("/login_render", function(req,res){
         const token = req.cookies.token;
         jwt.verify(token, process.env.JWT_SECRET, function(err, decoded){
             if(err){
-                res.redirect('/doctor/login');
+                return res.redirect('/doctor/login');
             }
             else{
                 //split the token
                 const user = decoded;
                 if(user.role == 'admin'){
-                    res.redirect('/admin/home_render');
+                    return res.redirect('/admin/home_render');
                 }
                 else if(user.role == 'doctor'){
-                   res.redirect('/doctor/home_render');
+                    return res.redirect('/doctor/home_render');
                 }
                 else if (user.role == 'hasta'){
-                    res.redirect('/user/home_render');
+                    return res.redirect('/user/home_render');
                 }
             }
         });
     }
     res.redirect('/doctor/login');
+    
 });
 
 router.post("/login", async function(req,res){
@@ -84,10 +85,12 @@ router.post("/login", async function(req,res){
                 const user_id = results3[0].iddoktor;
                 const token = jwt.sign({tcno: tcno, user_id: user_id, role: 'doctor'}, process.env.JWT_SECRET, {expiresIn: '1h'});
                 //cookie
-                res.cookie('token', token, {httpOnly: true});
-                //https
-                //res.cookie('token', token, {httpOnly: true, secure: true});
-                //console.log(token);
+                if(process.env.isHttps == 'true'){
+                    res.cookie('token', token, {httpOnly: true, secure: true});
+                }
+                else{
+                    res.cookie('token', token, {httpOnly: true});
+                }
                 return res.redirect('/doctor/home_render');
             }
             else
@@ -126,24 +129,27 @@ router.get("/register_render", function(req,res){
         const token = req.cookies.token;
         jwt.verify(token, process.env.JWT_SECRET, function(err, decoded){
             if(err){
-                res.redirect('/doctor/register');
+                return res.redirect('/doctor/register');
             }
             else{
                 //split the token
                 const user = decoded;
                 if(user.role == 'admin'){
-                    res.redirect('/admin/home_render');
+                    return res.redirect('/admin/home_render');
                 }
                 else if(user.role == 'doctor'){
-                    res.redirect('/doctor/home_render');
+                    return res.redirect('/doctor/home_render');
                 }
                 else if (user.role == 'hasta'){
-                    res.redirect('/user/home_render');
+                    return res.redirect('/user/home_render');
                 }
             }
         });
-    res.redirect('/doctor/register');
     }
+
+    res.redirect('/doctor/register');
+
+   
 });
 
 function sayiDisindaKarakterVarMi(str) {
@@ -363,7 +369,7 @@ router.get('/profile', async function(req,res){
         const token = req.cookies.token;
         jwt.verify(token, process.env.JWT_SECRET, function(err, decoded){
             if(err){
-                res.redirect('/doctor/login');
+                return res.redirect('/doctor/login');
             }
         });
     }
@@ -545,7 +551,7 @@ router.post('/profile_update', async function(req,res){
                 alert_type: 'alert-danger',
             });
         }
-        else if(calistigi_hastane.length > 50)
+        else if(calistigi_hastane.length > 100)
         {
             return res.render('doctor/profile_update', {
                 id: id,
@@ -569,9 +575,12 @@ router.post('/profile_update', async function(req,res){
                 //token
                 res.clearCookie('token');
                 const token = jwt.sign({tcno: tcno, user_id: id, role: 'doctor'}, process.env.JWT_SECRET, {expiresIn: '1h'});
-                res.cookie('token', token, {httpOnly: true});
-                //https
-                //res.cookie('token', token, {httpOnly: true, secure: true});
+                if(process.env.isHttps == 'true'){
+                    res.cookie('token', token, {httpOnly: true, secure: true});
+                }
+                else{
+                    res.cookie('token', token, {httpOnly: true});
+                }
 
                 return res.render('doctor/profile_update', {
                     id: id,
@@ -593,9 +602,12 @@ router.post('/profile_update', async function(req,res){
                     //token
                     res.clearCookie('token');
                     const token = jwt.sign({tcno: tcno, user_id: id, role: 'doctor'}, process.env.JWT_SECRET, {expiresIn: '1h'});
-                    res.cookie('token', token, {httpOnly: true});
-                    //https
-                    //res.cookie('token', token, {httpOnly: true, secure: true});
+                    if(process.env.isHttps == 'true'){
+                        res.cookie('token', token, {httpOnly: true, secure: true});
+                    }
+                    else{
+                        res.cookie('token', token, {httpOnly: true});
+                    }
 
                     return res.render('doctor/profile_update', {
                         id: id,
@@ -661,11 +673,13 @@ router.get('/profile_update_render', async function(req,res){
         const token = req.cookies.token;
         jwt.verify(token, process.env.JWT_SECRET, function(err, decoded){
             if(err){
-                res.redirect('/doctor/login');
+                return res.redirect('/doctor/login');
             }
         });
     }
     res.redirect('/doctor/profile_update');
+    
+    
 });
 
 module.exports = router;

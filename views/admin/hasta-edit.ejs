@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <%- include('../partials/head') %>
-    <title>Hasta Ekleme</title>
+    <title>Hasta Bilgi Güncelleme</title>
     <style>
         body {
             /* display: flex; */
@@ -18,41 +18,41 @@
      <div class="container mt-3">
         <div class="row">
             <div class="col-md-12 mt-3">
-                <h3>Hasta Ekleme</h3>
+                <h3>Hasta Bilgi Güncelleme</h3>
             </div>
             <div class="col-md-12 mt-3">
                 <form method="post"> 
                     <div class="row mb-3">
                         <label for="tcno" class="col-sm-2 col-from-label">Tc Kimlik No</label>
                         <div class="col-sm-8">
-                            <input type="text" class="form-control" id="tcno" name="tcno">
+                            <input type="text" class="form-control" id="tcno" name="tcno" value="<%= tcno %>">
                         </div>
                     </div>
                     <div class="row mb-3">
                         <label for="isim" class="col-sm-2 col-from-label">İsim</label>
                         <div class="col-sm-8">
-                            <input type="text" class="form-control" id="isim" name="isim">
+                            <input type="text" class="form-control" id="isim" name="isim" value="<%= isim %>">
                         </div>
                     </div>
                     <div class="row mb-3">
                         <label for="soyisim" class="col-sm-2 col-from-label">Soyisim</label>
                         <div class="col-sm-8">
-                            <input type="text" class="form-control" id="soyisim" name="soyisim">
+                            <input type="text" class="form-control" id="soyisim" name="soyisim" value="<%= soyisim %>">
                         </div>
                     </div>
                     <div class="row mb-3">
                         <label for="dogumTarihi" class="col-sm-2 col-from-label">Doğum Tarihi</label>
                         <div class="col-sm-8">
-                            <input type="date" id="dogumTarihi" name="dogumTarihi" required>
+                            <input type="date" id="dogumTarihi" name="dogumTarihi" required value="<%= dogumTarihi %>">
                         </div>
                     </div>
                     <div class="row mb-3">
                         <label for="cinsiyet" class="col-sm-2 col-from-label">Cinsiyet</label>
                         <div class="col-sm-8">
                             <select id="cinsiyet" name="cinsiyet" required>
-                                <option value="0">Belirtmek İstemiyorum</option>
-                                <option value="1">Erkek</option>
-                                <option value="2">Kadın</option>
+                                <option value="0" <%= cinsiyet == 0 ? 'selected' : '' %>>Belirtmek İstemiyorum</option>
+                                <option value="1" <%= cinsiyet == 1 ? 'selected' : '' %>>Erkek</option>
+                                <option value="2" <%= cinsiyet == 2 ? 'selected' : '' %>>Kadın</option>
                             </select>
                         </div>
                     </div>
@@ -60,36 +60,30 @@
                         <label for="telefon" class="col-sm-2 col-from-label">Telefon Numarası</label>
                         <div class="col-sm-8">
                             <input type="text" id="telefon-prefix" name="telefon-prefix" value="+90" readonly size="1">
-                            <input type="tel" id="telefon" name="telefon" required>
+                            <input type="tel" id="telefon" name="telefon"  value="<%= telefon %>"required>
                         </div>
                     </div>
                     <div class="row mb-3">
                         <label for="sehir" class="col-sm-2 col-from-label">Şehir</label>
                         <div class="col-sm-8">
-                            <input type="text" class="form-control" id="sehir" name="sehir">
+                            <input type="text" class="form-control" id="sehir" name="sehir" value="<%= sehir %>">
                         </div>
                     </div>
                     <div class="row mb-3">
                         <label for="ilce" class="col-sm-2 col-from-label">İlçe</label>
                         <div class="col-sm-8">
-                            <input type="text" class="form-control" id="ilce" name="ilce">
+                            <input type="text" class="form-control" id="ilce" name="ilce" value="<%= ilce %>">
                         </div>
                     </div>
                     <div class="row mb-3">
                         <label for="mahalle" class="col-sm-2 col-from-label">Mahalle</label>
                         <div class="col-sm-8">
-                            <input type="text" class="form-control" id="mahalle" name="mahalle">
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <label for="sifre" class="col-sm-2 col-from-label">Şifre</label>
-                        <div class="col-sm-8">
-                            <input type="password" class="form-control" id="sifre" name="sifre">
+                            <input type="text" class="form-control" id="mahalle" name="mahalle" value="<%= mahalle %>">
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-sm-8 offset-sm-2">
-                            <button type="submit" class="btn btn-primary">Kaydet</button>
+                            <button type="submit" class="btn btn-primary">Güncelle</button>
                         </div>
                     </div>
                 </form>

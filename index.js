@@ -1,6 +1,8 @@
 const express = require('express');
 const app = express();
 const cookieParser = require('cookie-parser');
+const dotenv = require('dotenv');
+dotenv.config();
 
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: false }));
@@ -21,7 +23,23 @@ app.use('/doctor', doctorRoutes);
 app.use('/user',userRoutes);
 app.use(login_register);
 
-
-app.listen(3000, function(){
-    console.log("Node.js server is running...");
+//envdeki ishhttps true ise https ile calisir
+if(process.env.isHttps == 'true'){
+   //https with app
+    const https = require('https');
+    const fs = require('fs');
+    const options = {
+        key: fs.readFileSync('./certs/www.prolab2.com.key'),
+        cert: fs.readFileSync('./certs/www.prolab2.com.crt')
+    };
+    https.createServer(options, app).listen(3001, function(){
+        console.log("Node.js server is running on port 3001...");
 });
+}
+else
+{
+    app.listen(3000, function(){
+        console.log("Node.js server is running on port 3000...");
+    });
+
+}

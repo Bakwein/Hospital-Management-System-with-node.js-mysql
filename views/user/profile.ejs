@@ -3,7 +3,15 @@
 <head>
     <%- include('../partials/head') %>
     <title>Hasta Profili</title>
-    
+    <style>
+        body {
+            /* display: flex; */
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to right, #f0f0f0, #b5fcd8);
+        }
+    </style>
     
 </head>
 <body>
@@ -13,75 +21,26 @@
             <div class="col-md-12 mt-3">
                 <h3>Hasta Profili</h3>
             </div>
-            <div class="col-md-12 mt-3">
-                <form method="post">
-                    <div class="row mb-3">
-                        <label for="id" class="col-sm-2 col-from-label">Id</label>
-                        <div class="col-sm-8">
-                            <input type="text" class="form-control" id="id" name="id" readonly value="<%= id %>">
-                        </div>
+            <div class="d-flex justify-content-center" style="margin-top: 40px;">
+                <div class="card" style="width: 20rem;">
+                    <img src="/static/user.png" class="card-img-top mx-auto" alt="user icon" style="width: 50%; height: auto;">
+                    <div class="card-body">
+                      <h4 class="card-title"><%= isim %> <%= soyisim %></h4>
                     </div>
-                    <div class="row mb-3">
-                        <label for="tcno" class="col-sm-2 col-from-label">Tc Kimlik No:</label>
-                        <div class="col-sm-8">
-                            <input type="text" class="form-control" id="tcno" name="tcno" readonly value="<%= tcno %>">
-                        </div>
+                    <ul class="list-group list-group-flush">
+                      <li class="list-group-item"><strong>Id :</strong> <%= id %></li>
+                      <li class="list-group-item"><strong>TC Kimlik No :</strong> <%= tcno %></li>
+                      <li class="list-group-item"><strong>Doğum Tarihi :</strong> <%= dogumTarihi.getDate() %> - <%= dogumTarihi.getMonth()+1 %> - <%= dogumTarihi.getFullYear() %></li>
+                      <li class="list-group-item"><strong>Cinsiyet :</strong> <%= cinsiyet %></li>
+                      <li class="list-group-item"><strong>Telefon :</strong> <%= telefon %></li>
+                      <li class="list-group-item"><strong>Şehir :</strong> <%= sehir %></li>
+                      <li class="list-group-item"><strong>İlçe :</strong> <%= ilce %></li>
+                      <li class="list-group-item"><strong>Mahalle :</strong> <%= mahalle %></li>
+                    </ul>
+                    <div class="card-body">
+                        <a href="/user/profile_update_render" class="btn btn-primary">Bilgilerini Güncelle</a>
                     </div>
-                    <div class="row mb-3">
-                        <label for="isim" class="col-sm-2 col-from-label">İsim:</label>
-                        <div class="col-sm-8">
-                            <input type="text" class="form-control" id="isim" name="isim" readonly value="<%= isim %>">
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <label for="soyisim" class="col-sm-2 col-from-label">Soyisim:</label>
-                        <div class="col-sm-8">
-                            <input type="text" class="form-control" id="soyisim" name="soyisim" readonly value="<%= soyisim %>">
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <label for="dogumTarihi" class="col-sm-2 col-from-label">Doğum Tarihi:</label>
-                        <div class="col-sm-8">
-                            <input type="text" class="form-control" id="dogumTarihi" name="dogumTarihi" readonly value="<%= dogumTarihi.getDate() %> - <%= dogumTarihi.getMonth()+1 %> - <%= dogumTarihi.getFullYear() %>  ">
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <label for="cinsiyet" class="col-sm-2 col-from-label">Cinsiyet:</label>
-                        <div class="col-sm-8">
-                            <input type="text" class="form-control" id="cinsiyet" name="cinsiyet" readonly value="<%= cinsiyet %>">
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <label for="telefon" class="col-sm-2 col-from-label">Telefon:</label>
-                        <div class="col-sm-8">
-                            <input type="text" class="form-control" id="telefon" name="telefon" readonly value="<%= telefon %>">
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <label for="sehir" class="col-sm-2 col-from-label">Şehir:</label>
-                        <div class="col-sm-8">
-                            <input type="text" class="form-control" id="sehir" name="sehir" readonly value="<%= sehir %>">
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <label for="ilce" class="col-sm-2 col-from-label">İlçe:</label>
-                        <div class="col-sm-8">
-                            <input type="text" class="form-control" id="ilce" name="ilce" readonly value="<%= ilce %>">
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <label for="mahalle" class="col-sm-2 col-from-label">Mahalle:</label>
-                        <div class="col-sm-8">
-                            <input type="text" class="form-control" id="mahalle" name="mahalle" readonly value="<%= mahalle %>">
-                        </div>
-                    </div>
-                    
-                    <div class="row mb-3">
-                        <div class="col-sm-8 offset-sm-2">
-                            <a href="/user/profile_update_render" class="btn btn-primary">Güncelleme Mi Yapmak İstiyorsun?</a>
-                        </div>
-                    </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>

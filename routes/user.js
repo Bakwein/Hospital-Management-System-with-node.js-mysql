@@ -26,25 +26,28 @@ router.get("/login_render", function(req,res){
         const token = req.cookies.token;
         jwt.verify(token, process.env.JWT_SECRET, function(err, decoded){
             if(err){
-                res.redirect('/user/login');
+                return res.redirect('/user/login');
             }
             else{
                 //split the token
                 const user = decoded;
                 if(user.role == 'admin'){
-                    res.redirect('/admin/home_render');
+                    return res.redirect('/admin/home_render');
                 }
                 else if(user.role == 'doctor'){
-                    res.redirect('/doctor/home_render');
+                    return res.redirect('/doctor/home_render');
                 }
                 else if (user.role == 'hasta'){
-                    res.redirect('/user/home_render');
+                    return res.redirect('/user/home_render');
                 }
             }
         });
     }
 
     res.redirect('/user/login');
+
+
+    
 });
 
 
@@ -86,11 +89,12 @@ router.post("/login", async function(req,res){
                 const user_id = results3[0].hastaid;
                 const token = jwt.sign({tcno: tcno, user_id: user_id, role: "hasta"}, process.env.JWT_SECRET, { expiresIn: '1h' });
                 //cookie
-                res.cookie('token', token, {httpOnly: true});
-                //https
-                //res.cookie('token', token, {httpOnly: true, secure: true});
-                
-                //console.log(token);
+                if(process.env.isHttps == 'true'){
+                    res.cookie('token', token, {httpOnly: true, secure: true});
+                }
+                else{
+                    res.cookie('token', token, {httpOnly: true});
+                }
 
                 return res.redirect('/user/home_render');
             }
@@ -129,26 +133,28 @@ router.get("/register_render", function(req,res){
         const token = req.cookies.token;
         jwt.verify(token, process.env.JWT_SECRET, function(err, decoded){
             if(err){
-                res.redirect('/user/register');
+                return res.redirect('/user/register');
             }
             else{
                 //split the token
                 const user = decoded;
                 if(user.role == 'admin'){
-                    res.redirect('/admin/home_render');
+                    return res.redirect('/admin/home_render');
                 }
                 else if(user.role == 'doctor'){
-                    res.redirect('/doctor/home_render');
+                    return res.redirect('/doctor/home_render');
                 }
                 else if (user.role == 'hasta'){
-                    res.redirect('/user/home_render');
+                    return res.redirect('/user/home_render');
                 }
             }
         });
     }
 
-
     res.redirect('/user/register');
+
+
+   
 });
 
 function sayiDisindaKarakterVarMi(str) {
@@ -482,7 +488,7 @@ router.get("/profile", async function(req,res){
         const token = req.cookies.token;
         jwt.verify(token, process.env.JWT_SECRET, function(err, decoded){
             if(err){
-                res.redirect('/user/login');
+                return res.redirect('/user/login');
             }
         });
     }
@@ -491,19 +497,6 @@ router.get("/profile", async function(req,res){
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const tcno = decoded.tcno;
         const [results,] = await db.execute("SELECT * FROM hasta WHERE tcno = ?", [tcno]); 
-        let cinsiyettemp = results[0].cinsiyet;
-        if(cinsiyettemp === '0')
-        {
-            cinsiyettemp = 'Cinsiyet belirtilmemiş';
-        }
-        else if(cinsiyettemp === '1')
-        {
-            cinsiyettemp = 'Erkek';
-        }
-        else if(cinsiyettemp === '2')
-        {
-            cinsiyettemp = 'Kadın';
-        }
 
         if(results.length === 0)
         {
@@ -519,7 +512,7 @@ router.get("/profile", async function(req,res){
                 isim: results[0].isim,
                 soyisim: results[0].soyisim,
                 dogumTarihi: results[0].dogumTarihi,
-                cinsiyet: cinsiyettemp,
+                cinsiyet: results[0].cinsiyet,
                 telefon: results[0].telefon,
                 sehir: results[0].sehir,
                 ilce: results[0].ilce,
@@ -906,9 +899,12 @@ router.post('/profile_update', async function(req,res){
                 //token
                 res.clearCookie('token');
                 const token = jwt.sign({tcno: tcno, user_id: id, role: "hasta"}, process.env.JWT_SECRET, { expiresIn: '1h' });
-                res.cookie('token', token, {httpOnly: true});
-                //https
-                //res.cookie('token', token, {httpOnly: true, secure: true});
+                if(process.env.isHttps == 'true'){
+                    res.cookie('token', token, {httpOnly: true, secure: true});
+                }
+                else{
+                    res.cookie('token', token, {httpOnly: true});
+                }
 
                 return res.render('user/profile_update', {
                     id: id,
@@ -933,9 +929,12 @@ router.post('/profile_update', async function(req,res){
                     //token
                     res.clearCookie('token');
                     const token = jwt.sign({tcno: tcno, user_id: id, role: "hasta"}, process.env.JWT_SECRET, { expiresIn: '1h' });
-                    res.cookie('token', token, {httpOnly: true});
-                    //https
-                    //res.cookie('token', token, {httpOnly: true, secure: true});
+                    if(process.env.isHttps == 'true'){
+                        res.cookie('token', token, {httpOnly: true, secure: true});
+                    }
+                    else{
+                        res.cookie('token', token, {httpOnly: true});
+                    }
 
                     return res.render('user/profile_update', {
                         id: id,
@@ -1015,11 +1014,57 @@ router.get('/profile_update_render', async function(req,res){
         const token = req.cookies.token;
         jwt.verify(token, process.env.JWT_SECRET, function(err, decoded){
             if(err){
-                res.redirect('/user/login');
+                return res.redirect('/user/login');
             }
         });
     }
     res.redirect('/user/profile_update');
+    
+});
+
+router.get('/randevu/delete/:randevuid', async function(req,res){
+    try{
+        const randevuid = req.params.randevuid;
+        await db.execute("DELETE FROM randevu WHERE randevuid = ?", [randevuid]);
+        res.redirect('/user/randevu-list');
+    }
+    catch(err)
+    {
+        console.log(err);
+    }
+});
+
+router.get('/randevu-list', async function(req,res){
+    try{
+        if(req.cookies.token){
+            //verify it
+            const token = req.cookies.token;
+            jwt.verify(token, process.env.JWT_SECRET, function(err, decoded){
+                if(err){
+                    return res.redirect('/user/login');
+                }
+            });
+        }
+        const token = req.cookies.token;
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const tcno = decoded.tcno;
+        console.log(tcno);
+        const [randevular,] = await db.execute("SELECT * FROM randevu WHERE h_tcno = ?", [tcno]);
+        const [doktorlar, ] = await db.execute("SELECT * FROM doktor");
+        console.log(randevular, doktorlar);
+        res.render('user/randevu-list', {
+            randevular: randevular,
+            doktorlar: doktorlar,
+            message: '',
+            alert_type: '',
+        });
+
+
+    }
+    catch(err)
+    {
+        console.log(err);
+    }
 });
 
 

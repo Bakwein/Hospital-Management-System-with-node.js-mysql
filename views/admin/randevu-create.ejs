@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head') %>
+    <title>Randevu Ekleme</title>
+    <style>
+        body {
+            /* display: flex; */
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to right, #f0f0f0, #b5fcd8);
+        }
+    </style>
+</head>
+<body>
+     <%- include('../partials/admin/begining-header') %>
+     <div class="container mt-3">
+        <div class="row">
+            <div class="col-md-12 mt-3">
+                <h3>Randevu Ekleme</h3>
+            </div>
+            <div class="col-md-12 mt-3">
+                <form method="post"> 
+                    <div class="row mb-3">
+                        <label for="doktor" class="col-sm-2 col-from-label">Doktor</label>
+                        <div class="col-sm-8">
+                            <select id="doktor" name="doktor" required>
+                                <option value="-41">Seçiniz</option>
+                                <% doktorlar.forEach(function(doktor) { %>
+                                    <option value="<%= doktor.iddoktor %>">
+                                        <%= doktor.isim %> <%= doktor.soyisim %>
+                                    </option>
+                                <% }); %>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="hasta" class="col-sm-2 col-from-label">Hasta</label>
+                        <div class="col-sm-8">
+                            <select id="hasta" name="hasta" required>
+                                <option value="-41">Seçiniz</option>
+                                <% hastalar.forEach(function(hasta) { %>
+                                    <option value="<%= hasta.hastaid %>"><%= hasta.isim %> <%= hasta.soyisim %></option>
+                                <% }); %>
+                            </select>
+                            
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="tarih" class="col-sm-2 col-from-label">Randevu Tarihi</label>
+                        <div class="col-sm-8">
+                            <input type="date" id="tarih" name="tarih" required min="<%= min_tarih %>" max="<%= max_tarih %>">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="saat" class="col-sm-2 col-from-label">Randevu Saati</label>
+                        <div class="col-sm-8">
+                            <select id="saat" name="saat" required>
+                                <option value="-41">Seçiniz</option>
+                                <option value="09:00">09:00</option>
+                                <option value="09:30">09:30</option>
+                                <option value="10:00">10:00</option>
+                                <option value="10:30">10:30</option>
+                                <option value="11:00">11:00</option>
+                                <option value="11:30">11:30</option>
+                                <option value="12:00">12:00</option>
+                                <option value="12:30">12:30</option>
+                                <option value="13:00">13:00</option>
+                                <option value="13:30">13:30</option>
+                                <option value="14:00">14:00</option>
+                                <option value="14:30">14:30</option>
+                                <option value="15:00">15:00</option>
+                                <option value="15:30">15:30</option>
+                                <option value="16:00">16:00</option>
+                                <option value="16:30">16:30</option>
+                                <option value="17:00">17:00</option>
+                                <option value="17:30">17:30</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-8 offset-sm-2">
+                            <button type="submit" class="btn btn-primary">Kaydet</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <% if (message && message.length > 0) { %>
+            <div class="row justify-content-center" style="margin-left: 90px;">
+                <div class="col-md-8">
+                    <div class="alert <%= alert_type %> row justify-content-center" role="alert">
+                        <%= message %>
+                    </div>
+                </div>
+            </div>
+        <% } %>
+    </div>    
+</body>
+</html>

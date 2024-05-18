@@ -3,7 +3,15 @@
 <head>
     <%- include('../partials/head') %>
     <title>Doktor Listesi</title>
-    
+    <style>
+        body {
+            /* display: flex; */
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to right, #f0f0f0, #b5fcd8);
+        }
+    </style>
 </head>
 <body>
     <%- include('../partials/admin/begining-header') %>
@@ -71,8 +79,8 @@
                                 </td>
                                 <td>
                                    
-                                    <a class="btn btn-sm btn-primary" href="">Edit</a>
-                                    <a class="btn btn-sm btn-danger" href="">Delete</a>
+                                    <a class="btn btn-sm btn-primary" href="/admin/hasta/<%= user.hastaid %>">Güncelle</a>
+                                    <a class="btn btn-sm btn-danger" href="/admin/hasta/delete/<%= user.hastaid %>">Sil</a>
                                 </td>
                             </tr>
                         <% }) %>
