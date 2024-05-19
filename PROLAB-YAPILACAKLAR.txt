@@ -1,19 +1,14 @@
-!!!!NDP -  trigger fonksiyonları
+!!!trigger fonksiyonları
 
 !Bildirim Sistemi Kurulumu: Kullanıcılara yeni laboratuvar sonuçları yüklendiğinde
 veya sonuçlarında önemli bir güncelleme olduğunda bildirim gönderen bir sistem
 kurulmalıdır.
+ONCASCADE OLAYINI BİLDİRİME DE EKLE(BİLDİRİM KISMI İÇİN TABLO YAPACAKSAN)
 
 !!NAV EKSİK BÖLÜMLER
 -Hasta
 Randevu al,
 
-!!TABLOLAR PAGING OLAYI - EKSİKLERİ TAMAMLA
-
-!!100 TANE RANDOM DATA EKLE HER ŞEY İÇİN!!!!!!
-
-ONCASCADE OLAYINI BİLDİRİME DE EKLE(BİLDİRİM KISMI İÇİN TABLO YAPACAKSAN)
-
 header title partial header kontrolü lazim asdjhkasdh bazı yerler admin-user-doctor karismis
 
-BAŞLANGIÇDAKİ GİBİ DİĞER SAYFALARDA TOKEN KONTROLÜ VARDI. SON SAYFALARA DA EKLE
+BAŞLANGIÇDAKİ GİBİ DİĞER SAYFALARDA TOKEN KONTROLÜ VARDI. SON SAYFALARA DA EKLE - yapmayacağız glb

@@ -6,6 +6,10 @@ const bcrypt = require('bcryptjs');
 const dotenv = require('dotenv');
 dotenv.config();
 
+//class import
+const { Hasta, Admin, Doktor, Randevu, Rapor, hastalar, adminler, doktorlar, randevular, raporlar } = require('../classes/classes');
+
+
 function sayiDisindaKarakterVarMi(str) {
     return /\D/.test(str);
 }
@@ -371,6 +375,10 @@ router.post('/hasta-create', async function(req,res){
 
             await db.execute("INSERT INTO hasta(tcno, isim, soyisim, dogumTarihi, cinsiyet, telefon, sehir, ilce, mahalle, sifre) VALUES(?,?,?,?,?,?,?,?,?,?)",[tcno, isim, soyisim, dogumTarihi, cinsiyet, telefon, sehir, ilce, mahalle, hashedPassword]);
 
+            //hasta nesnesi oluştur
+            let hasta_nesne = new Hasta(null, tcno, isim, soyisim, dogumTarihi, cinsiyet, telefon, sehir, ilce, mahalle, sifre);
+            hasta_nesne.addHasta(hasta_nesne);
+
             res.render('admin/hasta-create', {
                 message: 'Hasta başarıyla eklendi.',
                 alert_type: 'alert-success',
@@ -487,6 +495,9 @@ router.post('/doctor-create', async function(req,res){
             console.log(hashedPassword);
 
             await db.execute("INSERT INTO doktor(tcno, isim, soyisim, uzmanlik_alani, calistigi_hastane, password) VALUES(?,?,?,?,?,?)",[tcno, isim, soyisim, uzmanlik_alani, calistigi_hastane, hashedPassword]);
+            //doktor nesnesi
+            let doktor_nesne = new Doktor(null, tcno, isim, soyisim, uzmanlik_alani, calistigi_hastane, sifre);
+            doktor_nesne.addDoktor(doktor_nesne);
 
             res.render('admin/doctor-create', {
                 message: 'Doktor başarıyla eklendi.',
@@ -1293,9 +1304,18 @@ router.get("/hasta/delete/:hastaid", async function(req,res){
         //tum randevuları sil
         for(let i = 0; i < randevular.length; i++){
             await db.execute("DELETE FROM randevu WHERE randevuid = ?", [randevular[i].randevuid]);
+
         }
 
         await db.execute("DELETE FROM hasta WHERE hastaid = ?", [hastaid]);
+        //hasta listesinden hastayı bul o nesne üzerinden removeHasta fonksiyonunu çağır
+        for (let i = hastalar.length - 1; i >= 0; i--) {
+            if (hastalar[i].hastaid === hastaid) {
+                hastalar[i].removeHasta(hastalar[i]);
+            }
+        }
+
+
 
 
         res.redirect('/admin/hasta-list');
@@ -1333,6 +1353,13 @@ router.get("/doktor/delete/:doktorid", async function(req,res){
 
         await db.execute("DELETE FROM doktor WHERE iddoktor = ?", [doktorid]);
 
+        //doktor listesinden doktoru bul o nesne üzerinden removeDoktor fonksiyonunu çağır
+        for (let i = doktorlar.length - 1; i >= 0; i--) {
+            if (doktorlar[i].iddoktor === doktorid) {
+                doktorlar[i].removeDoktor(doktorlar[i]);
+            }
+        }
+
         res.redirect('/admin/doctor-list');
     }
     catch(err)
@@ -1344,7 +1371,7 @@ router.get("/doktor/delete/:doktorid", async function(req,res){
 
 router.get('/randevu-list', async function(req,res){
     let page = parseInt(req.query.page, 10) || 1;
-    let postPerPage = 15;
+    let postPerPage = 12;
     let i = page > 4 ? page - 2 : 1
     let offset = (postPerPage * page) - postPerPage;
     let sql2 = 'SELECT * FROM randevu'
@@ -1352,9 +1379,9 @@ router.get('/randevu-list', async function(req,res){
         const [countResult] = await db.execute('SELECT COUNT(*) AS count FROM randevu');
         let count = countResult[0].count;
 
-        const result = await db.execute("SELECT * FROM randevu LIMIT " + offset + ", " + postPerPage) 
-        const result2 = await db.execute("SELECT * FROM doktor LIMIT " + offset + ", " + postPerPage) 
-        const result3 = await db.execute("SELECT * FROM hasta LIMIT " + offset + ", " + postPerPage) 
+        const result = await db.execute("SELECT * FROM randevu LIMIT " + offset + ", " + postPerPage) ;
+        const result2 = await db.execute("SELECT * FROM doktor") ;
+        const result3 = await db.execute("SELECT * FROM hasta") ;
         res.render('admin/randevu-list', {
             randevular: result[0],
             doktorlar: result2[0],
@@ -1473,6 +1500,13 @@ router.post('/randevu-create', async function(req,res){
 
         //oluştur
         await db.execute("INSERT INTO randevu(d_tcno, h_tcno, tarih, saat) VALUES(?,?,?,?)",[doktor, hasta, tarih, saat]);
+        //randevu nesnesi oluşturma
+        let randevu_nesne = new Randevu(null, tarih, saat,doktor , hasta);
+        //Randevu nesneyi listeye ekleme
+        randevu_nesne.addRandevu(randevu_nesne);
+
+        
+        
 
         res.render('admin/randevu-create', {
             doktorlar: doktorlar,
@@ -1706,6 +1740,13 @@ router.get('/randevu/delete/:randevuid', async function(req,res){
         }
         //sil
         await db.execute("DELETE FROM randevu WHERE randevuid = ?", [randevuid]);
+        // randevu listesinden randevuyu bul o nesne üzerinden removeRandevu fonksiyonunu çağır
+        for (let i = randevular.length - 1; i >= 0; i--) {
+            if (randevular[i].randevuid === randevuid) {
+                randevular[i].removeRandevu(randevular[i]);
+            }
+        }
+
         res.redirect('/admin/randevu-list');
 
 
@@ -1734,15 +1775,23 @@ router.get('/rapor-create', async function(req,res){
 });
 
 router.get('/rapor-list', async function(req,res){
+    let page = parseInt(req.query.page, 10) || 1;
+    let postPerPage = 12;
+    let i = page > 4 ? page - 2 : 1
+    let offset = (postPerPage * page) - postPerPage;
     try{
-        const [raporlar, ] = await db.execute("SELECT * FROM rapor");
+        const [countResult] = await db.execute('SELECT COUNT(*) AS count FROM rapor');
+        let count = countResult[0].count;
 
+        const raporlar = await db.execute("SELECT * FROM rapor LIMIT " + offset + ", " + postPerPage) 
         res.render('admin/rapor-list', {
-            rapors: raporlar,
+            rapors: raporlar[0],
+            nowPage: parseInt(page),
+            totalPage: Math.ceil(count/postPerPage),
+            i: i,
             message: '',
             alert_type: '',
         });
-
 
     }
     catch(err)

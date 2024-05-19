@@ -11,6 +11,43 @@
             height: 100vh;
             background: linear-gradient(to right, #f0f0f0, #b5fcd8);
         }
+        .pagination {
+            width: 100%;
+            height: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px;
+            position: absolute;
+            bottom: 0;
+        }
+        .pagination ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .pagination ul li {
+            width: 40px;
+            height: 40px;
+            border-radius: 5px;
+            margin: 0px 5px;
+        }
+        .pagination ul li a {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            color: #000000;
+        }
+        .default {
+            background-color: #ffffff;
+        }
+        .active {
+            background-color: rgb(211, 211, 211);
+        }
     </style>
 </head>
 <body>
@@ -53,6 +90,57 @@
             </div>
         </div>
         
+    </div>
+    <div class="pagination">
+        <ul>
+            <% if (nowPage == 1) { %>
+                <li class="active"><a href="?page=1">1</a></li>
+            <% } else { %>
+                <li class="default"><a href="?page=1">1</a></li>
+            <% } %>
+            
+            <% if (i!=1) { %>
+                <li class="default"><a>...</a></li>
+            <% } %>
+
+            <% for(; i <= nowPage+3 && i<=totalPage; i++ ) { %>
+                
+                <% if (i == nowPage) { %>
+
+                    <% if (i==1 || i==totalPage) { %>
+                        
+                    <% } else { %>    
+                        <li class="active"><a href="?page=<%=i%>"><%=i%></a></li>
+                    <% } %>
+                    
+                <% } else { %>     
+                    <% if (i==1 || i==totalPage) { %>
+            
+                    <% } else { %>    
+                            <li class="default"><a href="?page=<%=i%>"><%=i%></a></li>
+                    <% } %>
+                <% } %>
+                
+                 
+            <% } %>
+
+
+
+            <% if (nowPage == totalPage) { %>
+                <% if (totalPage==1) { %>
+            
+                <% } else { %>    
+                    <li class="active"><a href="?page=<%=totalPage %>"><%=totalPage %></a></li>
+                <% } %>
+               
+            <% } else { %>
+                <% if (totalPage==1) { %>
+            
+                <% } else { %>    
+                    <li class="default"><a href="?page=<%=totalPage %>"><%=totalPage %></a></li>
+                <% } %>
+            <% } %>
+        </ul>
     </div>
 
     <script>

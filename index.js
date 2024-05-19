@@ -101,6 +101,9 @@ app.get('/download/:filename', (req, res) => {
   });
 });
 
+//CREATION TABLES
+require('./createtables');
+
 
 //envdeki ishhttps true ise https ile calisir
 if(process.env.isHttps == 'true'){

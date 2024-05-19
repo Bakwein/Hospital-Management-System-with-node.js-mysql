@@ -4,8 +4,7 @@ const path = require('path');
 const db = require('../data/db');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
-
-
+dotenv.config();
 
 
 router.get("/", function(req,res){

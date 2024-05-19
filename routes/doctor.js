@@ -6,6 +6,9 @@ const bcrypt = require('bcryptjs');
 const dotenv = require('dotenv');
 dotenv.config();
 
+//class import
+const { Hasta, Admin, Doktor, Randevu, Rapor, hastalar, adminler, doktorlar, randevular, raporlar } = require('../classes/classes');
+
 // Örnek route
 router.get('/', (req, res) => {
     res.send('Doctor route');
@@ -298,6 +301,10 @@ router.post("/register", async function(req,res){
         let hashedPassword = await bcrypt.hash(password, 8);
         //console.log(hashedPassword);
         await db.execute("INSERT INTO doktor (tcno, isim, soyisim, uzmanlik_alani, calistigi_hastane, password) VALUES (?,?,?,?,?,?)", [tcno, isim, soyisim, alan, hastane, hashedPassword]);
+
+        //doktor nesnesi
+        let doktor_nesne = new Doktor(null, tcno, isim, soyisim, alan, hastane, hashedPassword);
+        doktor_nesne.addDoktor(doktor_nesne);
 
         return res.render('doctor/register', {
             message: 'Doktor başarıyla kaydedildi',
@@ -682,8 +689,11 @@ router.get('/profile_update_render', async function(req,res){
     
 });
 
-
 router.get('/randevu-list', async function(req,res){
+    let page = parseInt(req.query.page, 10) || 1;
+    let postPerPage = 12;
+    let i = page > 4 ? page - 2 : 1
+    let offset = (postPerPage * page) - postPerPage;
     try{
         const token = req.cookies.token;
         if(!token)
@@ -693,7 +703,6 @@ router.get('/randevu-list', async function(req,res){
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const id = decoded.user_id;
 
-        //idden tcno bul
         const [doctors, ] = await db.execute("SELECT * FROM doktor WHERE iddoktor = ?", [id]);
         if(doctors.length === 0)
         {
@@ -701,17 +710,21 @@ router.get('/randevu-list', async function(req,res){
         }
         const d_tcno = doctors[0].tcno;
 
-
-        const [results,] = await db.execute("SELECT * FROM randevu WHERE d_tcno = ?", [d_tcno]);
-        const [hastalar, ] = await db.execute("SELECT * FROM hasta");
+        const result = await db.execute("SELECT * FROM randevu WHERE d_tcno = ? LIMIT " + offset + ", " + postPerPage, [d_tcno])
+        const hastalar = await db.execute("SELECT * FROM hasta") 
         res.render('doctor/randevu-list', {
-            randevular: results,
-            hastalar: hastalar,
+            randevular: result[0],
+            hastalar: hastalar[0],
             message: '',
             alert_type: '',
+            nowPage: parseInt(page),
+            totalPage: Math.ceil(doctors.length/postPerPage),
+            i: i
         });
+
     }
-    catch(err){
+    catch(err)
+    {
         console.log(err);
     }
 });
@@ -941,6 +954,17 @@ router.get('/randevu/delete/:randevuid', async function(req,res){
         }
         //sil
         await db.execute("DELETE FROM randevu WHERE randevuid = ?", [randevuid]);
+
+        for(let i = randevular.length - 1; i >= 0; i--)
+        {
+            if(randevular[i].randevuid == randevuid)
+            {
+                randevular[i].removeRandevu(randevular[i]);
+            }
+        }
+
+
+
         res.redirect('/doctor/randevu-list');
     }
     catch(err)
@@ -950,6 +974,10 @@ router.get('/randevu/delete/:randevuid', async function(req,res){
 });
 
 router.get('/hasta-list', async function(req,res){
+    let page = parseInt(req.query.page, 10) || 1;
+    let postPerPage = 12;
+    let i = page > 4 ? page - 2 : 1
+    let offset = (postPerPage * page) - postPerPage;
     try{
         const token = req.cookies.token;
         if(!token)
@@ -959,24 +987,24 @@ router.get('/hasta-list', async function(req,res){
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const tcno = decoded.tcno;
 
-        //randevu tablosundan h_tcno'su tcno ile eşleşen randevuların h_tcno'sunu unique olarak getir
         const [results,] = await db.execute("SELECT DISTINCT h_tcno FROM randevu WHERE d_tcno = ?", [tcno]);
-
-        //users dizisi olutşur
         let users = [];
         for(let i = 0; i < results.length; i++)
         {
             //her bir h_tcno için hasta tablosundan hastayı çek
-            const [user, ] = await db.execute("SELECT * FROM hasta WHERE tcno = ?", [results[i].h_tcno]);
+            const [user,]  = await db.execute("SELECT * FROM hasta WHERE tcno = ? LIMIT " + offset + ", " + postPerPage, [results[i].h_tcno]);
             users.push(user[0]);
         }
         res.render('doctor/hasta-list', {
             users: users,
             message: '',
             alert_type: '',
+            nowPage: parseInt(page),
+            totalPage: Math.ceil(results.length/postPerPage),
+            i: i
         });
-        
-    }   
+
+    }
     catch(err)
     {
         console.log(err);
@@ -984,6 +1012,10 @@ router.get('/hasta-list', async function(req,res){
 });
 
 router.get('/rapor-list', async function(req,res){
+    let page = parseInt(req.query.page, 10) || 1;
+    let postPerPage = 12;
+    let i = page > 4 ? page - 2 : 1
+    let offset = (postPerPage * page) - postPerPage;
     try{
         const token = req.cookies.token;
         if(!token)
@@ -993,23 +1025,26 @@ router.get('/rapor-list', async function(req,res){
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const tcno = decoded.tcno;
 
-        //randevu tablosundan h_tcno'su tcno ile eşleşen randevuların h_tcno'sunu unique olarak getir
         const [results,] = await db.execute("SELECT DISTINCT h_tcno FROM randevu WHERE d_tcno = ?", [tcno]);
-
         let raporlar = [];
-        //burada raporlar birden fazla olabilir ona göre ekleme yapılacak . resultsda tcno lar var
-        for(let i = 0; i < results.length; i++)
-        {
-            const [rapor, ] = await db.execute("SELECT * FROM rapor WHERE h_tcno = ?", [results[i].h_tcno]);
-            raporlar.push(rapor);
+        for(let i = 0; i < results.length; i++) {
+            const [rapor, ] = await db.execute("SELECT * FROM rapor WHERE h_tcno = ? LIMIT " + offset + ", " + postPerPage, [results[i].h_tcno]);
+            
+            // Eğer rapor dizisi boş değilse, raporlar dizisine ekle
+            if (rapor.length > 0) {
+                raporlar.push(rapor);
+            }
         }
-        console.log(raporlar);
+        //raporlar 2 boyutlu dizi onu 1 boyutlu yap
+        raporlar = raporlar.flat();
         res.render('doctor/rapor-list', {
-            rapors: raporlar[1],
+            rapors: raporlar,
+            nowPage: parseInt(page),
+            totalPage: Math.ceil(results.length/postPerPage),
+            i: i,
             message: '',
             alert_type: '',
         });
-
 
     }
     catch(err)

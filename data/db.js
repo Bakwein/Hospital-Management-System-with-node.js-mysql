@@ -12,4 +12,9 @@ connection.connect(function(err){
     console.log("mysql bağlandi");
 });
 
+//create table
+
+
+
+
 module.exports = connection.promise();

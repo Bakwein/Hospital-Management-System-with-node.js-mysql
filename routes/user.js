@@ -6,6 +6,9 @@ const bcrypt = require('bcryptjs');
 const dotenv = require('dotenv');
 dotenv.config();
 
+//class import
+const { Hasta, Admin, Doktor, Randevu, Rapor, hastalar, adminler, doktorlar, randevular, raporlar } = require('../classes/classes');
+
 // Örnek route
 router.get('/', (req, res) => {
     res.send('User route');
@@ -396,6 +399,10 @@ router.post("/register", async function(req,res){
     //console.log(hashedPassword);
     //direkt gerceklesmez bunun icin await kullanmak zorundayi
     await db.execute("INSERT INTO hasta(tcno, isim, soyisim, dogumTarihi, cinsiyet, telefon, sehir, ilce, mahalle, sifre) VALUES(?,?,?,?,?,?,?,?,?,?)",[tcno, isim, soyisim, dogumTarihi, cinsiyet, telefon, sehir, ilce, mahalle, hashedPassword]);
+
+    //hasta nesnesi
+    let hasta_nesne = new Hasta(null, tcno, isim, soyisim, dogumTarihi, cinsiyet, telefon, sehir, ilce, mahalle, hashedPassword);
+    hasta_nesne.addHasta(hasta_nesne);
 
     return res.render('user/register', {
         message: 'Kayıt başarılı',
@@ -1044,6 +1051,15 @@ router.get('/randevu/delete/:randevuid', async function(req,res){
         }
 
         await db.execute("DELETE FROM randevu WHERE randevuid = ?", [randevuid]);
+        // randevu listesinden randevuyu bul o nesne üzerinden removeRandevu fonksiyonunu çağır
+        for(let i = randevular.length - 1; i >= 0; i--)
+        {
+            if(randevular[i].randevuid == randevuid)
+            {
+                randevular[i].removeRandevu(randevular[i]);
+            }
+        }
+
         res.redirect('/user/randevu-list');
     }
     catch(err)
@@ -1053,6 +1069,10 @@ router.get('/randevu/delete/:randevuid', async function(req,res){
 });
 
 router.get('/randevu-list', async function(req,res){
+    let page = parseInt(req.query.page, 10) || 1;
+    let postPerPage = 12;
+    let i = page > 4 ? page - 2 : 1
+    let offset = (postPerPage * page) - postPerPage;
     try{
         if(req.cookies.token){
             //verify it
@@ -1066,17 +1086,18 @@ router.get('/randevu-list', async function(req,res){
         const token = req.cookies.token;
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const tcno = decoded.tcno;
-        console.log(tcno);
-        const [randevular,] = await db.execute("SELECT * FROM randevu WHERE h_tcno = ?", [tcno]);
-        const [doktorlar, ] = await db.execute("SELECT * FROM doktor");
-        console.log(randevular, doktorlar);
+        const randevular = await db.execute("SELECT * FROM randevu WHERE h_tcno = ? LIMIT " + offset + ", " + postPerPage, [tcno]);
+        const doktorlar = await db.execute("SELECT * FROM doktor");
+
         res.render('user/randevu-list', {
-            randevular: randevular,
-            doktorlar: doktorlar,
+            randevular: randevular[0],
+            doktorlar: doktorlar[0],
+            nowPage: parseInt(page),
+            totalPage: Math.ceil(randevular.length/postPerPage),
+            i: i,
             message: '',
             alert_type: '',
         });
-
 
     }
     catch(err)
@@ -1251,18 +1272,22 @@ router.get('/randevu/:randevuid', async function(req,res){
 
 
 router.get('/rapor-list', async function(req,res){
+    let page = parseInt(req.query.page, 10) || 1;
+    let postPerPage = 12;
+    let i = page > 4 ? page - 2 : 1
+    let offset = (postPerPage * page) - postPerPage;
     try{
-
-        //tokendan tc'yi al
         const token = req.cookies.token;
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const tcno = decoded.tcno;
 
-        //hastanın raporlarını getir
-        const [raporlar,] = await db.execute("SELECT * FROM rapor WHERE h_tcno = ?", [tcno]);
+        const raporlar = await db.execute("SELECT * FROM rapor WHERE h_tcno = ? LIMIT " + offset + ", " + postPerPage, [tcno]);
 
         res.render('user/rapor-list', {
-            rapors: raporlar,
+            rapors: raporlar[0],
+            nowPage: parseInt(page),
+            totalPage: Math.ceil(raporlar.length/postPerPage),
+            i: i,
             message: '',
             alert_type: '',
         });
