@@ -55,8 +55,8 @@ app.post('/upload', upload.single('photo'), async (req, res) => {
           if (!hasta_id || !tarih || !icerik || !filePath) {
             return res.status(400).send('Tüm form alanları ve resim gereklidir.');
           }
-          console.log(filePath, icerik, tarih, hasta_id);
-
+          //console.log(filePath, icerik, tarih, hasta_id);
+          
           //hasta id'den tc'yi al
           const [hastalar,] = await db.execute('SELECT * FROM hasta WHERE hastaid = ?', [hasta_id]);
           if(hastalar.length == 0){
@@ -68,7 +68,7 @@ app.post('/upload', upload.single('photo'), async (req, res) => {
           //aynı isimde rapor var mı kontrol et
           const [raporlar,] = await db.execute('SELECT * FROM rapor WHERE resim = ?', [filePath]);
           if(raporlar.length > 0){
-                //hata mesajı olacak ama console.log'a yazdırılmayacak 400 olunca yazdırıyor
+
                 return res.status(400).send('Bu isimde bir rapor zaten yüklü. Lütfen farklı bir isim deneyiniz.');
           }
 

@@ -136,6 +136,27 @@ async function creating_rapor_table()
     }
 }
 
+async function creating_bildirim_table()
+{
+    try{`
+    CREATE TABLE bildirim (
+        bildirimid int NOT NULL AUTO_INCREMENT,
+        tcno varchar(11) NOT NULL,
+        role varchar(10) NOT NULL,
+        date varchar(100) NOT NULL,
+        icerik varchar(255) NOT NULL,
+        PRIMARY KEY (bildirimid),
+        UNIQUE KEY bildirimid_UNIQUE (bildirimid)
+      ) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+    `
+
+    }
+    catch(err)
+    {
+        console.log("Bildirim tablosu oluşturulurken hata oluştu" + err);
+    }
+}
+
 async function check_and_create_admin(name, pass)
 {
     try{
@@ -189,11 +210,11 @@ async function  creationg_rows_doctor()
 {
     const sifre = await  bcrypt.hash("123", 8);
 
-    await check_and_create_doctor("12345678901", "Ercüment ", "Akıncılar", "Kulak Burun Boğaz", "Özel Hastane", sifre);
-    await check_and_create_doctor("12345678902", "Fatma ", "Acar", "Göz", "Özel Hastane", sifre);
-    await check_and_create_doctor("12345678903", "Bestami ", "Ağırağaç", "Kardiyoloji", "Özel Hastane", sifre);
-    await check_and_create_doctor("12345678904", "Lemi ", "Akçay", "Ortopedi", "Şehir Hastanesi", sifre);
-    await check_and_create_doctor("12345678905", "Rafi ", "Akaş", "Dahiliye", "Özel Hastane", sifre);
+    await check_and_create_doctor("12345678901", "Ercüment", "Akıncılar", "Kulak Burun Boğaz", "Özel Hastane", sifre);
+    await check_and_create_doctor("12345678902", "Fatma", "Acar", "Göz", "Özel Hastane", sifre);
+    await check_and_create_doctor("12345678903", "Bestami", "Ağırağaç", "Kardiyoloji", "Özel Hastane", sifre);
+    await check_and_create_doctor("12345678904", "Lemi", "Akçay", "Ortopedi", "Şehir Hastanesi", sifre);
+    await check_and_create_doctor("12345678905", "Rafi", "Akaş", "Dahiliye", "Özel Hastane", sifre);
     await check_and_create_doctor("12345678906", "Mehmet", "Ardıç", "Nöroloji", "Özel Hastane", sifre);
     await check_and_create_doctor("12345678907", "Serdar", "Aksu", "Üroloji", "Özel Hastane", sifre);
     await check_and_create_doctor("12345678908", "Süleyman", "Akkaya", "Cildiye", "Özel Hastane", sifre);
@@ -201,25 +222,25 @@ async function  creationg_rows_doctor()
     await check_and_create_doctor("12345678910", "İzlem ", "Arınç", "Çocuk Hastalıkları", "Özel Hastane", sifre);
     await check_and_create_doctor("12345678911", "Saba ", "Atmaca", "Kadın Hastalıkları", "24 Eylül Hastanesi", sifre);
     await check_and_create_doctor("12345678912", "Sera", "Azbay", "Çocuk Hastalıkları", "24 Eylül Hastanes", sifre);
-    await check_and_create_doctor("12345678913", "Mahperi ", "Baştuğ", "Kardiyoloji", "24 Eylül Hastanesi", sifre);
-    await check_and_create_doctor("12345678914", "Safa ", "Baydil", "Ortopedi", "24 Eylül Hastanesi", sifre);
-    await check_and_create_doctor("12345678915", "Sefa ", "Bayrak", "Dahiliye", "24 Eylül Hastanesi", sifre);
+    await check_and_create_doctor("12345678913", "Mahperi", "Baştuğ", "Kardiyoloji", "24 Eylül Hastanesi", sifre);
+    await check_and_create_doctor("12345678914", "Safa", "Baydil", "Ortopedi", "24 Eylül Hastanesi", sifre);
+    await check_and_create_doctor("12345678915", "Sefa", "Bayrak", "Dahiliye", "24 Eylül Hastanesi", sifre);
     await check_and_create_doctor("12345678916", "Sedat", "Bayraktar", "Nöroloji", "24 Eylül Hastanesi", sifre);
     await check_and_create_doctor("12345678917", "Sedat", "Bektaş", "Üroloji", "24 Eylül Hastanesi", sifre);
     await check_and_create_doctor("12345678918", "Kubilay ", "Begiç", "Cildiye", "Acıbadem", sifre);
     await check_and_create_doctor("12345678919", "Remzi", "Bilgi", "Kadın Hastalıkları", "Acıbadem", sifre);
     await check_and_create_doctor("12345678920", "Süleyman", "Bilgin", "Çocuk Hastalıkları", "Acıbadem", sifre);
     await check_and_create_doctor("12345678921", "Pekin", "Bilir", "Kardiyoloji", "Acıbadem", sifre);
-    await check_and_create_doctor("12345678922", "Ogün  ", "Bölge", "Ortopedi", "Acıbadem", sifre);
-    await check_and_create_doctor("12345678923", "Sena  ", "Candan", "Dahiliye", "Acıbadem", sifre);
-    await check_and_create_doctor("12345678924", "Yücel   ", "Civan", "Nöroloji", "Akademi Hastanesi", sifre);
+    await check_and_create_doctor("12345678922", "Ogün", "Bölge", "Ortopedi", "Acıbadem", sifre);
+    await check_and_create_doctor("12345678923", "Sena", "Candan", "Dahiliye", "Acıbadem", sifre);
+    await check_and_create_doctor("12345678924", "Yücel", "Civan", "Nöroloji", "Akademi Hastanesi", sifre);
     await check_and_create_doctor("12345678925", "Süleyman", "Çakır", "Üroloji", "Akademi Hastanesi", sifre);
     await check_and_create_doctor("12345678926", "Seyit ", "Çakmak", "Cildiye", "Akademi Hastanesi", sifre);
-    await check_and_create_doctor("12345678927", "Elif ", "Çalışkan", "Kadın Hastalıkları", "Akademi Hastanesi", sifre);
-    await check_and_create_doctor("12345678928", "Oltun ", "Çalık", "Çocuk Hastalıkları", "Akademi Hastanesi", sifre);
-    await check_and_create_doctor("12345678929", "Sena ", "Çelik", "Kardiyoloji", "Akademi Hastanesi", sifre);
-    await check_and_create_doctor("12345678930", "Yansı ", "Çetin", "Ortopedi", "Akademi Hastanesi", sifre);
-    await check_and_create_doctor("12345678931", "Seher ", "Çevik", "Dahiliye", "Akademi Hastanesi", sifre);
+    await check_and_create_doctor("12345678927", "Elif", "Çalışkan", "Kadın Hastalıkları", "Akademi Hastanesi", sifre);
+    await check_and_create_doctor("12345678928", "Oltun", "Çalık", "Çocuk Hastalıkları", "Akademi Hastanesi", sifre);
+    await check_and_create_doctor("12345678929", "Sena", "Çelik", "Kardiyoloji", "Akademi Hastanesi", sifre);
+    await check_and_create_doctor("12345678930", "Yansı", "Çetin", "Ortopedi", "Akademi Hastanesi", sifre);
+    await check_and_create_doctor("12345678931", "Seher", "Çevik", "Dahiliye", "Akademi Hastanesi", sifre);
 
     
 
@@ -320,7 +341,7 @@ async function check_and_create_randevu(tarih, saat, d_tcno, h_tcno)
     }
     catch(err)
     {
-        console.log("Randevu tablosuna veri eklenirken hata oluştu" + err);
+        console.log("Randevu tablosuna veri eklenirken hata oluştu" + err , tarih , saat , d_tcno , h_tcno);
     }
 
 
@@ -371,10 +392,10 @@ function creating_rows_randevu()
     check_and_create_randevu("2024-05-04", "14:00", "12345678930", "52345678944");
     check_and_create_randevu("2024-05-05", "15:00", "12345678930", "52345678944");
     check_and_create_randevu("2024-05-06", "16:00", "12345678930", "52345678944");
-    check_and_create_randevu("2024-05-01", "09:00", "12345678926", "72345678917");
-    check_and_create_randevu("2024-05-02", "10:00", "12345678926", "72345678917");
-    check_and_create_randevu("2024-05-03", "11:00", "12345678926", "72345678917");
-    check_and_create_randevu("2024-05-04", "14:00", "12345678926", "72345678917");
+    check_and_create_randevu("2024-05-01", "09:00", "12345678922", "72345678917");
+    check_and_create_randevu("2024-05-02", "10:00", "12345678922", "72345678917");
+    check_and_create_randevu("2024-05-03", "11:00", "12345678922", "72345678917");
+    check_and_create_randevu("2024-05-04", "14:00", "12345678922", "72345678925");
 
 }
 
@@ -384,11 +405,11 @@ creating_doctor_table();
 creating_hasta_table();
 creating_randevu_table();
 creating_rapor_table();
+creating_bildirim_table();
 creating_rows_admin();
 creationg_rows_doctor();
 creating_rows_hasta();
 creating_rows_randevu();
-
 
 
 

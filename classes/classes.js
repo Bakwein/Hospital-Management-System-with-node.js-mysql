@@ -1,14 +1,3 @@
-// hasta listesi
-const hastalar = [];
-// admin listesi
-const adminler = [];
-// doktor listesi
-const doktorlar = [];
-// randevu listesi
-const randevular = [];
-// rapor listesi
-const raporlar = [];
-
 class Hasta {
     constructor(hastaid, tcno, isim, soyisim, dogumTarihi, cinsiyet, telefon, sehir, ilce, mahalle, sifre) {
         this.hastaid = hastaid;
@@ -44,18 +33,7 @@ class Hasta {
         this.sifre = sifre;
     }
 
-    // hastalar listesine ekle
-    static addHasta(hasta) {
-        hastalar.push(hasta);
-    }
-
-    // hastalar listesinden sil
-    static removeHasta(hasta) {
-        const index = hastalar.indexOf(hasta);
-        if (index > -1) {
-            hastalar.splice(index, 1);
-        }
-    }
+    
 }
 
 class Admin {
@@ -77,18 +55,7 @@ class Admin {
         this.sifre = sifre;
     }
 
-    // adminler listesine ekle
-    static addAdmin(admin) {
-        adminler.push(admin);
-    }
-
-    // adminler listesinden sil
-    static removeAdmin(admin) {
-        const index = adminler.indexOf(admin);
-        if (index > -1) {
-            adminler.splice(index, 1);
-        }
-    }
+    
 }
 
 class Doktor {
@@ -118,18 +85,7 @@ class Doktor {
         this.password = password;
     }
 
-    // doktorlar listesine ekle
-    static addDoktor(doktor) {
-        doktorlar.push(doktor);
-    }
-
-    // doktorlar listesinden sil
-    static removeDoktor(doktor) {
-        const index = doktorlar.indexOf(doktor);
-        if (index > -1) {
-            doktorlar.splice(index, 1);
-        }
-    }
+    
 }
 
 class Randevu {
@@ -155,18 +111,7 @@ class Randevu {
         this.h_tcno = h_tcno;
     }
 
-    // randevular listesine ekle
-    static addRandevu(randevu) {
-        randevular.push(randevu);
-    }
-
-    // randevular listesinden sil
-    static removeRandevu(randevu) {
-        const index = randevular.indexOf(randevu);
-        if (index > -1) {
-            randevular.splice(index, 1);
-        }
-    }
+    
 }
 
 class Rapor {
@@ -192,18 +137,7 @@ class Rapor {
         this.resim = resim;
     }
 
-    // raporlar listesine ekle
-    static addRapor(rapor) {
-        raporlar.push(rapor);
-    }
-
-    // raporlar listesinden sil
-    static removeRapor(rapor) {
-        const index = raporlar.indexOf(rapor);
-        if (index > -1) {
-            raporlar.splice(index, 1);
-        }
-    }
+    
 }
 
-module.exports = { Hasta, Admin, Doktor, Randevu, Rapor, hastalar, adminler, doktorlar, randevular, raporlar };
+module.exports = { Hasta, Admin, Doktor, Randevu, Rapor };

@@ -7,7 +7,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 //class import
-const { Hasta, Admin, Doktor, Randevu, Rapor, hastalar, adminler, doktorlar, randevular, raporlar } = require('../classes/classes');
+const { Hasta, Admin, Doktor, Randevu, Rapor } = require('../classes/classes');
 
 // Örnek route
 router.get('/', (req, res) => {
@@ -167,7 +167,7 @@ router.post("/register", async function(req,res){
     try{
         //console.log("doctor register post çalıştı ");
         const {tcno, isim, soyisim,alan, hastane , password, repassword} = req.body;
-        console.log(req.body);
+        //console.log(req.body);
 
         //KONTROLLER
         if(tcno.length !== 11)
@@ -304,7 +304,6 @@ router.post("/register", async function(req,res){
 
         //doktor nesnesi
         let doktor_nesne = new Doktor(null, tcno, isim, soyisim, alan, hastane, hashedPassword);
-        doktor_nesne.addDoktor(doktor_nesne);
 
         return res.render('doctor/register', {
             message: 'Doktor başarıyla kaydedildi',
@@ -352,9 +351,19 @@ function verifyToken(req,res)
     }
 }
 
-router.get("/home", function(req,res){
+router.get("/home", async function(req,res){
+
+    //token
+    const token = req.cookies.token;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const tcno = decoded.tcno;
+
+    const [bildirimler, ] = await db.execute("SELECT * FROM bildirim WHERE tcno = ? AND role = 'doktor'", [tcno]);
+
     res.render('doctor/home', {
         title: 'Doktor Anasayfa',
+        bildirimler: bildirimler,
+
     });
 });
 
@@ -578,6 +587,8 @@ router.post('/profile_update', async function(req,res){
             if(results.length === 0 )
             {
                 await db.execute("UPDATE doktor SET tcno = ?, isim = ?, soyisim = ?, uzmanlik_alani = ?, calistigi_hastane = ?, password = ? WHERE iddoktor = ?", [tcno, isim, soyisim, uzmanlik_alani, calistigi_hastane, newHashed ,id]);
+                //bildirim
+                await db.execute("INSERT INTO bildirim(tcno, role, date, icerik) VALUES(?,?,?,?)", [tcno, 'doctor', new Date().toISOString().slice(0, 19).replace('T', ' '), 'Profil bilgileri güncellendi']);
 
                 //token
                 res.clearCookie('token');
@@ -605,6 +616,8 @@ router.post('/profile_update', async function(req,res){
                 if(results[0].iddoktor == id)
                 {
                     await db.execute("UPDATE doktor SET tcno = ?, isim = ?, soyisim = ?, uzmanlik_alani = ?, calistigi_hastane = ?, password = ? WHERE iddoktor = ?", [tcno, isim, soyisim, uzmanlik_alani, calistigi_hastane,newHashed, id]);
+                    //bildirim
+                    await db.execute("INSERT INTO bildirim(tcno, role, date, icerik) VALUES(?,?,?,?)", [tcno, 'doctor', new Date().toISOString().slice(0, 19).replace('T', ' '), 'Profil bilgileri güncellendi']);
 
                     //token
                     res.clearCookie('token');
@@ -828,6 +841,10 @@ router.post('/randevu/:randevuid', async function(req,res){
 
         //güncelle
         await db.execute("UPDATE randevu SET d_tcno = ?, h_tcno = ?, tarih = ?, saat = ? WHERE randevuid = ?", [doktor, hasta, tarih, saat, randevuid]);
+        //bildirim
+        await db.execute("INSERT INTO bildirim(tcno, role, date, icerik) VALUES(?,?,?,?)", [doktor, 'doctor', new Date().toISOString().slice(0, 19).replace('T', ' '), 'Randevu güncellendi']);
+        //bildirim
+        await db.execute("INSERT INTO bildirim(tcno, role, date, icerik) VALUES(?,?,?,?)", [hasta, 'hasta', new Date().toISOString().slice(0, 19).replace('T', ' '), 'Randevu güncellendi']);
 
         res.render('doctor/randevu-edit', {
             doktorlar: doktorlar,
@@ -954,16 +971,10 @@ router.get('/randevu/delete/:randevuid', async function(req,res){
         }
         //sil
         await db.execute("DELETE FROM randevu WHERE randevuid = ?", [randevuid]);
-
-        for(let i = randevular.length - 1; i >= 0; i--)
-        {
-            if(randevular[i].randevuid == randevuid)
-            {
-                randevular[i].removeRandevu(randevular[i]);
-            }
-        }
-
-
+        //bildirim
+        await db.execute("INSERT INTO bildirim(tcno, role, date, icerik) VALUES(?,?,?,?)", [randevular[0].d_tcno, 'doctor', new Date().toISOString().slice(0, 19).replace('T', ' '), 'Randevu silindi']);
+        //bildirim
+        await db.execute("INSERT INTO bildirim(tcno, role, date, icerik) VALUES(?,?,?,?)", [randevular[0].h_tcno, 'hasta', new Date().toISOString().slice(0, 19).replace('T', ' '), 'Randevu silindi']);
 
         res.redirect('/doctor/randevu-list');
     }

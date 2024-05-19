@@ -7,7 +7,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 //class import
-const { Hasta, Admin, Doktor, Randevu, Rapor, hastalar, adminler, doktorlar, randevular, raporlar } = require('../classes/classes');
+const { Hasta, Admin, Doktor, Randevu, Rapor} = require('../classes/classes');
 
 
 function sayiDisindaKarakterVarMi(str) {
@@ -93,7 +93,7 @@ router.post("/login", async function(req,res){
                 }
 
 
-                console.log(token);
+                //console.log(token);
 
                 return res.redirect('/admin/home_render');
 
@@ -136,7 +136,7 @@ function verifyToken(req,res)
     try
     {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        console.log(decoded);
+        //console.log(decoded);
         return decoded;
     }
     catch(err)
@@ -234,7 +234,7 @@ router.get('/hasta-create', function(req,res){
 
 
 router.post('/hasta-create', async function(req,res){
-    console.log(req.body);
+    //console.log(req.body);
     
     try{
         const {tcno, isim, soyisim, dogumTarihi, cinsiyet, telefon, sehir, ilce, mahalle, sifre} = req.body;
@@ -375,9 +375,10 @@ router.post('/hasta-create', async function(req,res){
 
             await db.execute("INSERT INTO hasta(tcno, isim, soyisim, dogumTarihi, cinsiyet, telefon, sehir, ilce, mahalle, sifre) VALUES(?,?,?,?,?,?,?,?,?,?)",[tcno, isim, soyisim, dogumTarihi, cinsiyet, telefon, sehir, ilce, mahalle, hashedPassword]);
 
+
+
             //hasta nesnesi oluştur
             let hasta_nesne = new Hasta(null, tcno, isim, soyisim, dogumTarihi, cinsiyet, telefon, sehir, ilce, mahalle, sifre);
-            hasta_nesne.addHasta(hasta_nesne);
 
             res.render('admin/hasta-create', {
                 message: 'Hasta başarıyla eklendi.',
@@ -492,12 +493,12 @@ router.post('/doctor-create', async function(req,res){
 
         if(doctors.length === 0){
             const hashedPassword = await bcrypt.hash(sifre, 8);
-            console.log(hashedPassword);
+            //console.log(hashedPassword);
 
             await db.execute("INSERT INTO doktor(tcno, isim, soyisim, uzmanlik_alani, calistigi_hastane, password) VALUES(?,?,?,?,?,?)",[tcno, isim, soyisim, uzmanlik_alani, calistigi_hastane, hashedPassword]);
             //doktor nesnesi
             let doktor_nesne = new Doktor(null, tcno, isim, soyisim, uzmanlik_alani, calistigi_hastane, sifre);
-            doktor_nesne.addDoktor(doktor_nesne);
+            
 
             res.render('admin/doctor-create', {
                 message: 'Doktor başarıyla eklendi.',
@@ -1027,6 +1028,9 @@ router.post("/hasta/:hastaid", async function(req,res){
         {
             await db.execute("UPDATE hasta SET tcno = ?, isim = ?, soyisim = ?, dogumTarihi = ?, cinsiyet = ?, telefon = ?, sehir = ?, ilce = ?, mahalle = ? WHERE hastaid = ?",[tcno, isim, soyisim, dogumTarihi, cinsiyet, telefon, sehir, ilce, mahalle, hastaid]);
 
+            //bildirim
+            await db.execute("INSERT INTO bildirim(tcno, role, date, icerik) VALUES(?,?,?,?)",[tcno, 'hasta', new Date().toISOString().slice(0, 19).replace('T', ' '), 'Hasta bilgileriniz güncellendi.']);
+
             res.render('admin/hasta-edit', {
                 id: hastaid,
                 tcno: tcno,
@@ -1064,7 +1068,7 @@ router.get("/hasta/:hastaid", async function(req,res){
             });
         }
         else{
-            console.log(users[0].tcno, "**");
+            //console.log(users[0].tcno, "**");
 
             res.render('admin/hasta-edit', {
                 id: users[0].hastaid,
@@ -1243,6 +1247,9 @@ router.post("/doktor/:doktorid", async function(req,res){
         {
             await db.execute("UPDATE doktor SET tcno = ?, isim = ?, soyisim = ?, uzmanlik_alani = ?, calistigi_hastane = ? WHERE iddoktor = ?",[tcno, isim, soyisim, uzmanlik_alani, calistigi_hastane, doktorid]);
 
+            //bildirim
+            await db.execute("INSERT INTO bildirim(tcno, role, date, icerik) VALUES(?,?,?,?)",[tcno, 'doktor', new Date().toISOString().slice(0, 19).replace('T', ' '), 'Doktor bilgileriniz güncellendi.']);
+
             res.render('admin/doctor-edit', {
                 id: doktorid,
                 tcno: tcno,
@@ -1298,25 +1305,7 @@ router.get("/hasta/delete/:hastaid", async function(req,res){
     try{
         //await db.execute("DELETE FROM hasta WHERE hastaid = ?", [hastaid]);
 
-        //delete foreign key
-        console.log("girdi");
-        const [randevular, ] = await db.execute("SELECT * FROM randevu WHERE h_tcno = ?", [hastaid]);
-        //tum randevuları sil
-        for(let i = 0; i < randevular.length; i++){
-            await db.execute("DELETE FROM randevu WHERE randevuid = ?", [randevular[i].randevuid]);
-
-        }
-
         await db.execute("DELETE FROM hasta WHERE hastaid = ?", [hastaid]);
-        //hasta listesinden hastayı bul o nesne üzerinden removeHasta fonksiyonunu çağır
-        for (let i = hastalar.length - 1; i >= 0; i--) {
-            if (hastalar[i].hastaid === hastaid) {
-                hastalar[i].removeHasta(hastalar[i]);
-            }
-        }
-
-
-
 
         res.redirect('/admin/hasta-list');
     }
@@ -1327,38 +1316,46 @@ router.get("/hasta/delete/:hastaid", async function(req,res){
 });
 
 router.get("/doktor/delete/:doktorid", async function(req,res){
+    let page = parseInt(req.query.page, 10) || 1;
+    let postPerPage = 12;
+    let i = page > 4 ? page - 2 : 1
+    let offset = (postPerPage * page) - postPerPage;
     const doktorid = req.params.doktorid;
-
     try{
 
-        const [doctors, ] = await db.execute("SELECT * FROM doktor");
+        //const [doctors, ] = await db.execute("SELECT * FROM doktor");
         //doctor tcsi bul
+        const [countResults] = await db.execute('SELECT COUNT(*) AS count FROM doktor');
+        let count = countResults[0].count;
         const [doktorlar_tc, ] = await db.execute("SELECT * FROM doktor WHERE iddoktor = ?", [doktorid]);
+        const result = await db.execute("SELECT * FROM doktor LIMIT " + offset + ", " + postPerPage) ;
         if(doktorlar_tc.length === 0){
             return res.render('admin/doctor-list', {
-                doctors: doctors,
+                doctors: result[0],
+                nowPage: parseInt(page),
+                totalPage: Math.ceil(count/postPerPage),
+                i: i,
                 message: 'Doktor bulunamadı.',
-                alert_type: 'alert-danger',
+                alert_type: 'alert-danger',                
+
             });
         }
 
         const [randevular, ] = await db.execute("SELECT * FROM randevu WHERE d_tcno = ?", [doktorlar_tc[0].tcno]);
         if(randevular.length > 0){
             return res.render('admin/doctor-list', {
-                doctors: doctors,
+                doctors: result[0],
+                nowPage: parseInt(page),
+                totalPage: Math.ceil(count/postPerPage),
+                i: i,
                 message: 'Bu doktora ait randevular olduğu için silinemez.',
                 alert_type: 'alert-danger',
+                
             });
         }
 
         await db.execute("DELETE FROM doktor WHERE iddoktor = ?", [doktorid]);
 
-        //doktor listesinden doktoru bul o nesne üzerinden removeDoktor fonksiyonunu çağır
-        for (let i = doktorlar.length - 1; i >= 0; i--) {
-            if (doktorlar[i].iddoktor === doktorid) {
-                doktorlar[i].removeDoktor(doktorlar[i]);
-            }
-        }
 
         res.redirect('/admin/doctor-list');
     }
@@ -1502,8 +1499,11 @@ router.post('/randevu-create', async function(req,res){
         await db.execute("INSERT INTO randevu(d_tcno, h_tcno, tarih, saat) VALUES(?,?,?,?)",[doktor, hasta, tarih, saat]);
         //randevu nesnesi oluşturma
         let randevu_nesne = new Randevu(null, tarih, saat,doktor , hasta);
-        //Randevu nesneyi listeye ekleme
-        randevu_nesne.addRandevu(randevu_nesne);
+        
+        //bildirim oluşturma
+        await db.execute("INSERT INTO bildirim(tcno, role, date, icerik) VALUES(?,?,?,?)",[doktor, "doktor", new Date().toISOString().slice(0, 19).replace('T', ' '), "Randevunuz oluşturuldu."]);
+        await db.execute("INSERT INTO bildirim(tcno, role, date, icerik) VALUES(?,?,?,?)",[hasta, "hasta", new Date().toISOString().slice(0, 19).replace('T', ' '), "Randevunuz oluşturuldu."]);
+    
 
         
         
@@ -1619,6 +1619,11 @@ router.post('/randevu/:randevuid', async function(req,res){
 
         //güncelle
         await db.execute("UPDATE randevu SET d_tcno = ?, h_tcno = ?, tarih = ?, saat = ? WHERE randevuid = ?",[doktor, hasta, tarih, saat, randevuid]);
+
+        //bildirim
+        await db.execute("INSERT INTO bildirim(tcno, role, date, icerik) VALUES(?,?,?,?)",[doktor, 'doktor', new Date().toISOString().slice(0, 19).replace('T', ' '), 'Randevunuz güncellendi.']);
+        //bildirim
+        await db.execute("INSERT INTO bildirim(tcno, role, date, icerik) VALUES(?,?,?,?)",[hasta, 'hasta', new Date().toISOString().slice(0, 19).replace('T', ' '), 'Randevunuz güncellendi.']);
 
         res.render('admin/randevu-edit', {
             doktorlar: doktorlar,
@@ -1740,12 +1745,10 @@ router.get('/randevu/delete/:randevuid', async function(req,res){
         }
         //sil
         await db.execute("DELETE FROM randevu WHERE randevuid = ?", [randevuid]);
-        // randevu listesinden randevuyu bul o nesne üzerinden removeRandevu fonksiyonunu çağır
-        for (let i = randevular.length - 1; i >= 0; i--) {
-            if (randevular[i].randevuid === randevuid) {
-                randevular[i].removeRandevu(randevular[i]);
-            }
-        }
+        //bildirim
+        await db.execute("INSERT INTO bildirim(tcno, role, date, icerik) VALUES(?,?,?,?)",[randevular[0].d_tcno, 'doktor', new Date().toISOString().slice(0, 19).replace('T', ' '), 'Randevunuz iptal edildi.']);
+        //bildirim
+        await db.execute("INSERT INTO bildirim(tcno, role, date, icerik) VALUES(?,?,?,?)",[randevular[0].h_tcno, 'hasta', new Date().toISOString().slice(0, 19).replace('T', ' '), 'Randevunuz iptal edildi.']);
 
         res.redirect('/admin/randevu-list');
 

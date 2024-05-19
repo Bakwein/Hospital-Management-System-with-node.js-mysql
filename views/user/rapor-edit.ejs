@@ -31,11 +31,11 @@
 
 
                     <div class="row mb-3">
-                        <label for="hasta" class="col-sm-2 col-from-label">Hasta</label>
+                        <label for="hasta" class="col-sm-2 col-from-label">Hasta Id</label>
                         <div class="col-sm-8">
                                 <% hastalar.forEach(function(hasta) { %>
                                     <% if (hasta.tcno == tcno) { %>
-                                        <input type="text" class="form-control" id="hasta" name="hasta" value="<%= hasta.isim %> <%= hasta.soyisim %>" readonly>
+                                        <input type="text" class="form-control" id="hasta" name="hasta" value="<%= hasta.hastaid %>" readonly>
                                     <% } %>
                                 <% }); %>
                             </select>
