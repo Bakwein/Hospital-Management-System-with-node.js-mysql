@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <%- include('../partials/head') %>
-    <title><%= title %></title>
+    <title>Hasta Anasayfa</title>
     <style>
         body {
             /* display: flex; */
@@ -12,12 +12,12 @@
             background: linear-gradient(to right, #f0f0f0, #b5fcd8);
         }
         .custom-box {
-            border: 3px solid purple; /* Mor çerçeve */
+            border: 3px solid purple; 
             padding: 20px;
             margin-bottom: 20px;
         }
         .custom-box .box-header {
-            background-color: purple; /* Başlık kısmının arka plan rengi */
+            background-color: purple; 
             color: white;
             padding: 10px;
             font-size: 1.25rem;
@@ -25,7 +25,7 @@
         }
         .custom-box .box-content {
             padding: 10px;
-            background-color: #f9f9f9; /* İçeriğin arka plan rengi */
+            background-color: #f9f9f9; 
             height: 600px;
             font-size: 20px;
             display: flex;
@@ -42,19 +42,17 @@
     <%- include('../partials/user/begining-header') %>
     <div class="container" style="margin-top: 80px;">
         <div class="row">
-            <div class="col-md-3">
+            <div class="col-md-12">
                 <div class="custom-box">
                     <div class="box-header">
-                        Bugün Olan Randevuların
+                        Bildirimler
                     </div>
                     <div class="box-content">
                         <img src="/static/randevuyok.png">
-                        Randevun Yok.
+                        Bildirimin Yok.
                     </div>
                 </div>
             </div>
-            <div class="col-md-2"></div>
-            <div class="col-md-6"></div>
         </div>
     </div>
 </body>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head') %>
+    <title>Bakılacak Randevular</title>
+    <style>
+        body {
+            /* display: flex; */
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to right, #f0f0f0, #b5fcd8);
+        }
+    </style>
+</head>
+<body>
+    <%- include('../partials/doctor/begining-header') %>
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col-md-12 mt-3">
+                <h3>Bakılacak Randevular</h3>
+            </div>
+            <div class="col-md-12 mt-3">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th style="width:50px">Randevu Id</th>
+                            <th>Hasta Adı</th>
+                            <th>Hasta Soyadı</th>
+                            <th>Randevu Tarihi</th>
+                            <th>Randevu Saati</th>
+                            <th style="width:130px"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% randevular.forEach(randevu => { %>
+                            <tr>
+                                <td>
+                                    <%= randevu.randevuid %>
+                                </td>
+                                <td>
+                                    <% hastalar.forEach(hasta => { %>
+                                        <% if (hasta.tcno == randevu.h_tcno ) { %>
+                                            <%= hasta.isim %>
+                                        <% } %>
+                                    <% }) %>
+                                </td>
+                                <td>
+                                    <% hastalar.forEach(hasta => { %>
+                                        <% if (hasta.tcno == randevu.h_tcno ) { %>
+                                            <%= hasta.soyisim %>
+                                        <% } %>
+                                    <% }) %>
+                                </td>
+                                <td>
+                                    <%= randevu.tarih %>
+                                </td>
+                                <td>
+                                    <%= randevu.saat %>
+                                </td>
+                                <td>
+                                   
+                                    <a class="btn btn-sm btn-primary" href="/doctor/randevu/<%= randevu.randevuid %>">Güncelle</a>
+                                    <a class="btn btn-sm btn-danger" href="/doctor/randevu/delete/<%= randevu.randevuid %>">Sil</a>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <% if (message && message.length > 0) { %>
+            <div class="row justify-content-center" style="margin-left: 90px;">
+                <div class="col-md-8">
+                    <div class="alert <%= alert_type %> row justify-content-center" role="alert">
+                        <%= message %>
+                    </div>
+                </div>
+            </div>
+        <% } %>
+    </div>
+
+    
+</body>
+</html>

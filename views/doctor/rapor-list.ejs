@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head') %>
+    <title>Rapor Listesi</title>
+    <style>
+        body {
+            /* display: flex; */
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to right, #f0f0f0, #b5fcd8);
+        }
+    </style>
+</head>
+<body>
+    <%- include('../partials/doctor/begining-header') %>
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col-md-12 mt-3">
+                <h3>Rapor Listesi</h3>
+            </div>
+            <div class="col-md-12 mt-3">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th style="width:50px">Rapor Id</th>
+                            <th>Tc Kimlik No</th>
+                            <th>Tarih</th>
+                            <th>İçerik</th>
+                            <th style="width:190px"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% rapors.forEach(rapor => { %>
+                            <tr>
+                                <td>
+                                    <%= rapor.raporid %>
+                                </td>
+                                <td>
+                                    <%= rapor.h_tcno %>
+                                </td>
+                                <td>
+                                    <%= rapor.tarih %>
+                                    
+                                </td>
+                                <td>
+                                    <%= rapor.icerik %>
+                                </td>
+                                <td>
+                                    <a class="btn btn-sm btn-primary" onclick="downloadFile('<%= rapor.resim %>')">Sonucu İndir</a>
+                                    <a class="btn btn-sm btn-danger" href="/doctor/rapor/<%= rapor.raporid %>">Düzenle</a>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+    </div>
+
+    <script>
+
+        
+
+        function downloadFile(fileName) {
+   
+    //en sagdan basla /'den sonrasını al
+    fileName = fileName.substring(fileName.lastIndexOf('/')+1);
+    $.ajax({
+        url: `/download/${fileName}`, 
+        type: 'GET',
+        xhrFields: {
+            responseType: 'blob' 
+        },
+        success: function(data){
+            const url = window.URL.createObjectURL(data);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        },
+        error: function(error){
+            console.log(error);
+            alert('Dosya indirilemedi');
+        }
+    });
+}
+
+
+
+    </script>
+    
+</body>
+</html>

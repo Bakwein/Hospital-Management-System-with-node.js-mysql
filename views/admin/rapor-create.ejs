@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head') %>
+    <title>Rapor Ekleme</title>
+    <style>
+        body {
+            /* display: flex; */
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to right, #f0f0f0, #b5fcd8);
+        }
+    </style>
+</head>
+<body>
+     <%- include('../partials/admin/begining-header') %>
+     <div class="container mt-3">
+        <div class="row">
+            <div class="col-md-12 mt-3">
+                <h3>Rapor Ekleme</h3>
+            </div>
+            <div class="col-md-12 mt-3">
+                <form id ="uploadForm">
+                    <div class="row mb-3">
+                        <label for="hasta" class="col-sm-2 col-from-label">Hasta</label>
+                        <div class="col-sm-8">
+                            <select id="hasta" name="hasta" required>
+                                <option value="-41">Seçiniz</option>
+                                <% hastalar.forEach(function(hasta) { %>
+                                    <option value="<%= hasta.hastaid %>"><%= hasta.isim %> <%= hasta.soyisim %></option>
+                                <% }); %>
+                            </select>
+                            
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="tarih" class="col-sm-2 col-from-label">Tarih</label>
+                        <div class="col-sm-8">
+                            <input type="date" id="tarih" name="tarih" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="icerik" class="col-sm-2 col-form-label">İçerik</label>
+                        <div class="col-sm-8">
+                            <textarea class="form-control" id="icerik" name="icerik" required></textarea>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="photo" class="col-sm-2 col-form-label">Resim</label>
+                        <div class="col-sm-8">
+                            <input type="file" id="photoInput" name="photo" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-8 offset-sm-2">
+                            <button type="submit" class="btn btn-primary">Kaydet</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <% if (message && message.length > 0) { %>
+            <div class="row justify-content-center" style="margin-left: 90px;">
+                <div class="col-md-8">
+                    <div class="alert <%= alert_type %> row justify-content-center" role="alert">
+                        <%= message %>
+                    </div>
+                </div>
+            </div>
+        <% } %>
+    </div>
+    <script>
+        //üsttekini ajax ile yaz
+
+        document.getElementById('uploadForm').addEventListener('submit', function(e){
+            e.preventDefault();
+
+            const formData = new FormData();
+            const photo = document.getElementById('photoInput').files[0];
+            formData.append('photo', photo);
+            formData.append('hasta', document.getElementById('hasta').value);
+            formData.append('tarih', document.getElementById('tarih').value);
+            formData.append('icerik', document.getElementById('icerik').value);
+
+            $.ajax({
+                url: '/upload',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(data){
+                    const message = document.createElement('div');
+                    message.classList.add('alert');
+                    message.classList.add('alert-success');
+                    message.classList.add('row');
+                    message.classList.add('justify-content-center');
+                    message.setAttribute('role', 'alert');
+                    message.innerHTML = "Rapor başarıyla eklendi";
+                    document.getElementById('uploadForm').appendChild(message);
+                },
+                error: function(error){
+                    console.log(error);
+                    const message = document.createElement('div');
+                    message.classList.add('alert');
+                    message.classList.add('alert-danger');
+                    message.classList.add('row');
+                    message.classList.add('justify-content-center');
+                    message.setAttribute('role', 'alert');
+                    message.innerHTML = error.message.json();
+                    document.getElementById('uploadForm').appendChild(message);
+                }
+            });
+        });
+
+
+
+    </script>
+</body>
+</html>

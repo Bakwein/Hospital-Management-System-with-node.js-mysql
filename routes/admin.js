@@ -167,29 +167,53 @@ router.get("/logout", function(req,res){
 
 
 router.get('/doctor-list', async function(req,res){
+    let page = parseInt(req.query.page, 10) || 1;
+    let postPerPage = 12;
+    let i = page > 4 ? page - 2 : 1
+    let offset = (postPerPage * page) - postPerPage;
+    let sql2 = 'SELECT * FROM doktor'
     try{
-        const [doctors, ] = await db.execute("SELECT * FROM doktor");
+        const [countResult] = await db.execute('SELECT COUNT(*) AS count FROM doktor');
+        let count = countResult[0].count;
+
+        const result = await db.execute("SELECT * FROM doktor LIMIT " + offset + ", " + postPerPage) 
         res.render('admin/doctor-list', {
-            doctors: doctors,
+            doctors: result[0],
+            nowPage: parseInt(page),
+            totalPage: Math.ceil(count/postPerPage),
+            i: i,
             message: '',
             alert_type: '',
         });
 
     }
-    catch(err){
+    catch(err)
+    {
         console.log(err);
     }
 });
 
 router.get('/hasta-list', async function(req,res){
+    let page = parseInt(req.query.page, 10) || 1;
+    let postPerPage = 12;
+    let i = page > 4 ? page - 2 : 1
+    let offset = (postPerPage * page) - postPerPage;
+    let sql2 = 'SELECT * FROM hasta'
     try{
-        const [users, ] = await db.execute("SELECT * FROM hasta");
+        const [countResult] = await db.execute('SELECT COUNT(*) AS count FROM hasta');
+        let count = countResult[0].count;
+
+        const result = await db.execute("SELECT * FROM hasta LIMIT " + offset + ", " + postPerPage) 
         res.render('admin/hasta-list', {
-            users: users,
+            users: result[0],
+            nowPage: parseInt(page),
+            totalPage: Math.ceil(count/postPerPage),
+            i: i
         });
 
     }
-    catch(err){
+    catch(err)
+    {
         console.log(err);
     }
 });
@@ -1261,7 +1285,18 @@ router.get("/hasta/delete/:hastaid", async function(req,res){
     const hastaid = req.params.hastaid;
 
     try{
+        //await db.execute("DELETE FROM hasta WHERE hastaid = ?", [hastaid]);
+
+        //delete foreign key
+        console.log("girdi");
+        const [randevular, ] = await db.execute("SELECT * FROM randevu WHERE h_tcno = ?", [hastaid]);
+        //tum randevuları sil
+        for(let i = 0; i < randevular.length; i++){
+            await db.execute("DELETE FROM randevu WHERE randevuid = ?", [randevular[i].randevuid]);
+        }
+
         await db.execute("DELETE FROM hasta WHERE hastaid = ?", [hastaid]);
+
 
         res.redirect('/admin/hasta-list');
     }
@@ -1308,25 +1343,34 @@ router.get("/doktor/delete/:doktorid", async function(req,res){
 
 
 router.get('/randevu-list', async function(req,res){
+    let page = parseInt(req.query.page, 10) || 1;
+    let postPerPage = 15;
+    let i = page > 4 ? page - 2 : 1
+    let offset = (postPerPage * page) - postPerPage;
+    let sql2 = 'SELECT * FROM randevu'
     try{
-        const [randevular, ] = await db.execute("SELECT * FROM randevu");
-        const [doktorlar, ] = await db.execute("SELECT * FROM doktor");
-        const [hastalar, ] = await db.execute("SELECT * FROM hasta");
-        res.render('admin/randevu-list', {
-           randevular: randevular,
-            doktorlar: doktorlar,
-            hastalar: hastalar,
+        const [countResult] = await db.execute('SELECT COUNT(*) AS count FROM randevu');
+        let count = countResult[0].count;
 
+        const result = await db.execute("SELECT * FROM randevu LIMIT " + offset + ", " + postPerPage) 
+        const result2 = await db.execute("SELECT * FROM doktor LIMIT " + offset + ", " + postPerPage) 
+        const result3 = await db.execute("SELECT * FROM hasta LIMIT " + offset + ", " + postPerPage) 
+        res.render('admin/randevu-list', {
+            randevular: result[0],
+            doktorlar: result2[0],
+            hastalar: result3[0],
+            nowPage: parseInt(page),
+            totalPage: Math.ceil(count/postPerPage),
+            i: i,
             message: '',
             alert_type: '',
-
         });
+
     }
     catch(err)
     {
         console.log(err);
     }
-
 });
 
 router.get('/randevu-create', async function(req,res){
@@ -1572,6 +1616,11 @@ router.get('/randevu/:randevuid', async function(req,res){
     try{
         const [randevular, ] = await db.execute("SELECT * FROM randevu WHERE randevuid = ?", [randevuid]);
         if(randevular.length === 0){
+            const [doktorlar, ] = await db.execute("SELECT * FROM doktor");
+            const [hastalar, ] = await db.execute("SELECT * FROM hasta");
+
+            const [doktor_id, ] = await db.execute("SELECT iddoktor FROM doktor WHERE tcno = ?", [randevular[0].d_tcno]);
+            const [hasta_id, ] = await db.execute("SELECT hastaid FROM hasta WHERE tcno = ?", [randevular[0].h_tcno]);
             return res.render('admin/randevu-edit', {
                 doktorlar: doktorlar,
                 hastalar: hastalar,
@@ -1591,6 +1640,7 @@ router.get('/randevu/:randevuid', async function(req,res){
             const [hastalar, ] = await db.execute("SELECT * FROM hasta");
 
             const [doktor_id, ] = await db.execute("SELECT iddoktor FROM doktor WHERE tcno = ?", [randevular[0].d_tcno]);
+            const [hasta_id, ] = await db.execute("SELECT hastaid FROM hasta WHERE tcno = ?", [randevular[0].h_tcno]);
             if(doktor_id.length === 0){
                 return res.render('admin/randevu-edit', {
                     doktorlar: doktorlar,
@@ -1606,7 +1656,6 @@ router.get('/randevu/:randevuid', async function(req,res){
                     alert_type: 'alert-danger',
                 });
             }
-            const [hasta_id, ] = await db.execute("SELECT hastaid FROM hasta WHERE tcno = ?", [randevular[0].h_tcno]);
             if(hasta_id.length === 0){
                 return res.render('admin/randevu-edit', {
                     doktorlar: doktorlar,
@@ -1646,9 +1695,91 @@ router.get('/randevu/:randevuid', async function(req,res){
     }
 });
 
-router.get('/randevu-delete/:randevuid', async function(req,res){
+
+router.get('/randevu/delete/:randevuid', async function(req,res){
     const randevuid = req.params.randevuid;
     try{
+        //randevu var mı
+        const [randevular, ] = await db.execute("SELECT * FROM randevu WHERE randevuid = ?", [randevuid]);
+        if(randevular.length === 0){
+            return res.redirect('/admin/randevu-list');
+        }
+        //sil
+        await db.execute("DELETE FROM randevu WHERE randevuid = ?", [randevuid]);
+        res.redirect('/admin/randevu-list');
+
+
+    }
+    catch(err)
+    {
+        console.log(err);
+    }
+});
+
+router.get('/rapor-create', async function(req,res){
+    try{
+        const [hastalar, ] = await db.execute("SELECT * FROM hasta");
+
+        res.render('admin/rapor-create', {
+            hastalar: hastalar,
+            message: '',
+            alert_type: '',
+        });
+
+    }
+    catch(err)
+    {
+        console.log(err);
+    }
+});
+
+router.get('/rapor-list', async function(req,res){
+    try{
+        const [raporlar, ] = await db.execute("SELECT * FROM rapor");
+
+        res.render('admin/rapor-list', {
+            rapors: raporlar,
+            message: '',
+            alert_type: '',
+        });
+
+
+    }
+    catch(err)
+    {
+        console.log(err);
+    }
+});
+
+
+router.get('/rapor/:raporid', async function(req,res){
+    const raporid = req.params.raporid;
+
+    try{
+        const [raporlar, ] = await db.execute("SELECT * FROM rapor WHERE raporid = ?", [raporid]);
+        if(raporlar.length === 0){
+            const [hastalar, ] = await db.execute("SELECT * FROM hasta");
+
+            return res.render('admin/rapor-edit', {
+                hastalar: hastalar,
+                tcno: '',
+                tarih: '',
+                icerik: '',
+                message: 'Rapor bulunamadı.',
+                alert_type: 'alert-danger',
+            });
+        }
+        else{
+            const [hastalar, ] = await db.execute("SELECT * FROM hasta");
+            res.render('admin/rapor-edit', {
+                hastalar: hastalar,
+                tcno: raporlar[0].h_tcno,
+                tarih: raporlar[0].tarih,
+                icerik: raporlar[0].icerik,
+                message: '',
+                alert_type: '',
+            });
+        }
 
     }
     catch(err)

@@ -468,10 +468,21 @@ router.get("/logout", function(req,res){
 });
 
 router.get('/doctor-list', async function(req,res){
+    let page = parseInt(req.query.page, 10) || 1;
+    let postPerPage = 15;
+    let i = page > 4 ? page - 2 : 1
+    let offset = (postPerPage * page) - postPerPage;
+    let sql2 = 'SELECT * FROM doktor'
     try{
-        const [doctors,] = await db.execute("SELECT * FROM doktor");
+        const [countResult] = await db.execute('SELECT COUNT(*) AS count FROM doktor');
+        let count = countResult[0].count;
+
+        const result = await db.execute("SELECT * FROM doktor LIMIT " + offset + ", " + postPerPage) 
         res.render('user/doctor-list', {
-            doctors: doctors,
+            doctors: result[0],
+            nowPage: parseInt(page),
+            totalPage: Math.ceil(count/postPerPage),
+            i: i
         });
 
     }
@@ -1025,6 +1036,13 @@ router.get('/profile_update_render', async function(req,res){
 router.get('/randevu/delete/:randevuid', async function(req,res){
     try{
         const randevuid = req.params.randevuid;
+        //randevu var mı kontrol et
+        const [randevular,] = await db.execute("SELECT * FROM randevu WHERE randevuid = ?", [randevuid]);
+        if(randevular.length === 0)
+        {
+            return res.redirect('/user/randevu-list');
+        }
+
         await db.execute("DELETE FROM randevu WHERE randevuid = ?", [randevuid]);
         res.redirect('/user/randevu-list');
     }
@@ -1060,6 +1078,260 @@ router.get('/randevu-list', async function(req,res){
         });
 
 
+    }
+    catch(err)
+    {
+        console.log(err);
+    }
+});
+
+router.post('/randevu/:randevuid', async function(req,res){
+    const randevuid = req.params.randevuid;
+    let {doktor, saat, tarih} = req.body;
+
+    try{
+        const [doktorlar, ] = await db.execute("SELECT * FROM doktor");
+
+        //doktor tc
+        const [doktor_id, ] = await db.execute("SELECT tcno FROM doktor WHERE iddoktor = ?", [doktor]);
+        if(doktor_id.length === 0)
+        {
+            return res.render('user/randevu-edit', {
+                doktorlar: doktorlar,
+                selectedDoktorId: doktor,
+                selectedSaat: saat,
+                //min tarih + 1 gün
+                min_tarih : new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                //max tarih = min_tarih + 15 gün
+                max_tarih : new Date(new Date().getTime() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                message: 'Doktor bulunamadı',
+                alert_type: 'alert-danger',
+            });
+        }
+        const doktor_tcno = doktor_id[0].tcno;
+
+        //hasta tc
+        const token = req.cookies.token;
+        if(!token)
+        {
+            return res.render('user/randevu-edit', {
+                doktorlar: doktorlar,
+                selectedDoktorId: doktor,
+                selectedSaat: saat,
+                //min tarih + 1 gün
+                min_tarih : new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                //max tarih = min_tarih + 15 gün
+                max_tarih : new Date(new Date().getTime() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                message: 'Token bulunamadı',
+                alert_type: 'alert-danger',
+            });
+        }
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        
+        const hasta = decoded.tcno;
+        doktor = doktor_tcno;
+
+        //doktorun bu tarihde randevusu var mi
+        const [randevular, ] = await db.execute("SELECT * FROM randevu WHERE d_tcno = ? AND tarih = ? AND saat = ?", [doktor, tarih, saat]);
+        if(randevular.length > 0)
+        {
+            return res.render('user/randevu-edit', {
+                doktorlar: doktorlar,
+                selectedDoktorId: doktor,
+                selectedSaat: saat,
+                //min tarih + 1 gün
+                min_tarih : new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                //max tarih = min_tarih + 15 gün
+                max_tarih : new Date(new Date().getTime() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                message: 'Bu tarih ve saatte doktorun randevusu var',
+                alert_type: 'alert-danger',
+            });
+        }
+        //hastanın var mı
+        const [randevular2, ] = await db.execute("SELECT * FROM randevu WHERE h_tcno = ? AND tarih = ? AND saat = ?", [hasta, tarih, saat]);
+        if(randevular2.length > 0)
+        {
+            return res.render('user/randevu-edit', {
+                doktorlar: doktorlar,
+                selectedDoktorId: doktor,
+                selectedSaat: saat,
+                //min tarih + 1 gün
+                min_tarih : new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                //max tarih = min_tarih + 15 gün
+                max_tarih : new Date(new Date().getTime() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                message: 'Bu tarih ve saatte sizin randevunuz var',
+                alert_type: 'alert-danger',
+            });
+        }
+        //güncelle
+        await db.execute("UPDATE randevu SET d_tcno = ?, tarih = ?, saat = ? WHERE randevuid = ?", [doktor, tarih, saat, randevuid]);
+
+        res.render('user/randevu-edit', {
+            doktorlar: doktorlar,
+            selectedDoktorId: doktor,
+            selectedSaat: saat,
+            //min tarih + 1 gün
+            min_tarih : new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            //max tarih = min_tarih + 15 gün
+            max_tarih : new Date(new Date().getTime() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            message: 'Randevu güncellendi',
+            alert_type: 'alert-success',
+        });
+        
+        
+    }
+    catch(err)
+    {
+        console.log(err);
+    }
+});
+
+router.get('/randevu/:randevuid', async function(req,res){
+    const randevuid = req.params.randevuid;
+
+    try{
+        const [randevular,] = await db.execute("SELECT * FROM randevu WHERE randevuid = ?", [randevuid]);
+        if(randevular.length === 0)
+        {
+            const [doktorlar,] = await db.execute("SELECT * FROM doktor");
+            const [doktor_id, ] = await db.execute("SELECT iddoktor FROM doktor WHERE tcno = ?", [randevular[0].d_tcno]);
+           
+
+            return res.render('user/randevu-edit', {
+                doktorlar: doktorlar,
+                selectedDoktorId: doktor_id[0].iddoktor,
+                selectedSaat: randevular[0].saat,
+                //min tarih + 1 gün
+                min_tarih : new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                //max tarih = min_tarih + 15 gün
+                max_tarih : new Date(new Date().getTime() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                message: 'Randevu bulunamadı',
+                alert_type: 'alert-danger',
+            });
+        }
+        else
+        {
+            const [doktorlar,] = await db.execute("SELECT * FROM doktor");
+            const [doktor_id, ] = await db.execute("SELECT iddoktor FROM doktor WHERE tcno = ?", [randevular[0].d_tcno]);
+            if(doktor_id.length === 0)
+            {
+                return res.render('user/randevu-edit', {
+                    doktorlar: doktorlar,
+                    selectedDoktorId: '',
+                    selectedSaat: '',
+                    //min tarih + 1 gün
+                    min_tarih : new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                    //max tarih = min_tarih + 15 gün
+                    max_tarih : new Date(new Date().getTime() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                    message: 'Doktor bulunamadı',
+                    alert_type: 'alert-danger',
+                });
+            }
+            return res.render('user/randevu-edit', {
+                doktorlar: doktorlar,
+                selectedDoktorId: doktor_id[0].iddoktor,
+                selectedSaat: randevular[0].saat,
+                //min tarih + 1 gün
+                min_tarih : new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                //max tarih = min_tarih + 15 gün
+                max_tarih : new Date(new Date().getTime() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                message: '',
+                alert_type: '',
+            });
+        }
+
+        
+
+    }
+    catch(err)
+    {
+        console.log(err);
+    }
+});
+
+
+router.get('/rapor-list', async function(req,res){
+    try{
+
+        //tokendan tc'yi al
+        const token = req.cookies.token;
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const tcno = decoded.tcno;
+
+        //hastanın raporlarını getir
+        const [raporlar,] = await db.execute("SELECT * FROM rapor WHERE h_tcno = ?", [tcno]);
+
+        res.render('user/rapor-list', {
+            rapors: raporlar,
+            message: '',
+            alert_type: '',
+        });
+
+    }
+    catch(err)
+    {
+        console.log(err);
+    }
+});
+
+
+router.get('/rapor/:raporid', async function(req,res){
+    const raporid = req.params.raporid;
+
+    //token
+    const token = req.cookies.token;
+    if(!token)
+    {
+        return res.redirect('/user/login');
+    }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const tcno = decoded.tcno;
+
+    try{
+        const [raporlar,] = await db.execute("SELECT * FROM rapor WHERE raporid = ?", [raporid]);
+        if(raporlar.length === 0)
+        {
+            const [hastalar,] = await db.execute("SELECT * FROM hasta WHERE tcno = ?", [tcno]);
+            if(hastalar.length === 0)
+            {
+                res.clearCookie('token');
+                return res.redirect('/user/login');
+            }
+            else
+            {
+                res.render('user/rapor-edit', {
+                    hastalar: hastalar,
+                    tcno: tcno,
+                    id: '',
+                    tarih: '',
+                    icerik: '',
+                    message: 'Rapor bulunamadı',
+                    alert_type: 'alert-danger',
+                });
+                
+            }
+        }
+        else
+        {
+           const [hastalar,] = await db.execute("SELECT * FROM hasta WHERE tcno = ?", [tcno]);
+            if(hastalar.length === 0)
+            {
+                res.clearCookie('token');
+                return res.redirect('/user/login');
+            }
+            else
+            {
+                res.render('user/rapor-edit', {
+                    id: raporlar[0].raporid,
+                    hastalar: hastalar,
+                    tcno: tcno,
+                    tarih: raporlar[0].tarih,
+                    icerik: raporlar[0].icerik,
+                    message: '',
+                    alert_type: '',
+                });
+            }
+        }
     }
     catch(err)
     {
